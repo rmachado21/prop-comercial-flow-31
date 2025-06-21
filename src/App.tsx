@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
+import Clients from "./pages/Clients";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,12 @@ const App = () => (
                 <Index />
               </ProtectedRoute>
             } />
+
+            <Route path="/clientes" element={
+              <ProtectedRoute>
+                <Clients />
+              </ProtectedRoute>
+            } />
             
             {/* Placeholder routes for next phases */}
             <Route path="/propostas" element={
@@ -41,17 +48,6 @@ const App = () => (
                   <div className="text-center">
                     <h1 className="text-2xl font-bold mb-4">Propostas</h1>
                     <p className="text-gray-600">Em desenvolvimento - Etapa 5</p>
-                  </div>
-                </div>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/clientes" element={
-              <ProtectedRoute>
-                <div className="min-h-screen flex items-center justify-center">
-                  <div className="text-center">
-                    <h1 className="text-2xl font-bold mb-4">Clientes</h1>
-                    <p className="text-gray-600">Em desenvolvimento - Etapa 3</p>
                   </div>
                 </div>
               </ProtectedRoute>
