@@ -1,36 +1,86 @@
 
 import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import WelcomeHeader from '@/components/Dashboard/WelcomeHeader';
+import StatsCard from '@/components/Dashboard/StatsCard';
+import ActivityFeed from '@/components/Dashboard/ActivityFeed';
+import QuickActions from '@/components/Dashboard/QuickActions';
 import { 
   FileText, 
   Users, 
   Package, 
   TrendingUp,
-  Plus,
-  ArrowRight,
   DollarSign,
-  Clock
+  Calendar,
+  Clock,
+  Target
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const Index = () => {
-  const { user } = useAuth();
-
   // Mock data - In real app, this would come from an API
-  const stats = {
-    propostas: { total: 24, recentes: 5, valor: 'R$ 125.600' },
-    clientes: { total: 18, novos: 3 },
-    produtos: { total: 45, categorias: 8 },
-    conversao: { taxa: '68%', tendencia: '+5%' }
-  };
-
-  const recentActivity = [
-    { type: 'proposta', title: 'Proposta #001 criada', client: 'TechCorp Ltda', time: '2 horas atrás' },
-    { type: 'cliente', title: 'Novo cliente cadastrado', client: 'Inovação Digital', time: '4 horas atrás' },
-    { type: 'proposta', title: 'Proposta #002 enviada', client: 'StartupXYZ', time: '1 dia atrás' },
+  const stats = [
+    {
+      title: 'Propostas',
+      value: 24,
+      subtitle: '5 esta semana',
+      icon: FileText,
+      iconColor: 'text-primary-600',
+      trend: { value: '+12%', isPositive: true }
+    },
+    {
+      title: 'Clientes',
+      value: 18,
+      subtitle: '3 novos este mês',
+      icon: Users,
+      iconColor: 'text-green-600',
+      trend: { value: '+20%', isPositive: true }
+    },
+    {
+      title: 'Produtos',
+      value: 45,
+      subtitle: '8 categorias',
+      icon: Package,
+      iconColor: 'text-orange-600'
+    },
+    {
+      title: 'Taxa de Conversão',
+      value: '68%',
+      subtitle: 'vs. mês anterior',
+      icon: TrendingUp,
+      iconColor: 'text-purple-600',
+      trend: { value: '+5%', isPositive: true }
+    },
+    {
+      title: 'Receita Total',
+      value: 'R$ 125.600',
+      subtitle: 'Este mês',
+      icon: DollarSign,
+      iconColor: 'text-emerald-600',
+      trend: { value: '+18%', isPositive: true }
+    },
+    {
+      title: 'Propostas Pendentes',
+      value: 7,
+      subtitle: 'Aguardando resposta',
+      icon: Clock,
+      iconColor: 'text-yellow-600'
+    },
+    {
+      title: 'Meta Mensal',
+      value: '85%',
+      subtitle: 'R$ 170.000',
+      icon: Target,
+      iconColor: 'text-blue-600',
+      trend: { value: '15% restante', isPositive: false }
+    },
+    {
+      title: 'Agendamentos',
+      value: 12,
+      subtitle: 'Esta semana',
+      icon: Calendar,
+      iconColor: 'text-indigo-600',
+      trend: { value: '+3', isPositive: true }
+    }
   ];
 
   return (
@@ -38,201 +88,80 @@ const Index = () => {
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-commercial-900">
-            Olá, {user?.name}! 👋
-          </h1>
-          <p className="text-commercial-600 mt-2">
-            Bem-vindo ao seu painel de controle. Aqui está um resumo das suas atividades.
-          </p>
-        </div>
+        <WelcomeHeader />
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Button asChild className="h-16 bg-gradient-primary hover:bg-primary-700">
-            <Link to="/propostas/nova" className="flex items-center justify-center space-x-2">
-              <Plus className="w-5 h-5" />
-              <span>Nova Proposta</span>
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="h-16">
-            <Link to="/clientes/novo" className="flex items-center justify-center space-x-2">
-              <Users className="w-5 h-5" />
-              <span>Novo Cliente</span>
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="h-16">
-            <Link to="/produtos/novo" className="flex items-center justify-center space-x-2">
-              <Package className="w-5 h-5" />
-              <span>Novo Produto</span>
-            </Link>
-          </Button>
+        <div className="mb-8">
+          <QuickActions />
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Propostas */}
-          <Card className="card-shadow hover:card-shadow-lg transition-all duration-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-commercial-600">
-                Propostas
-              </CardTitle>
-              <FileText className="h-4 w-4 text-primary-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-commercial-900">{stats.propostas.total}</div>
-              <div className="flex items-center justify-between mt-2">
-                <p className="text-xs text-commercial-500">
-                  {stats.propostas.recentes} esta semana
-                </p>
-                <p className="text-xs font-medium text-green-600">
-                  {stats.propostas.valor}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Clientes */}
-          <Card className="card-shadow hover:card-shadow-lg transition-all duration-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-commercial-600">
-                Clientes
-              </CardTitle>
-              <Users className="h-4 w-4 text-primary-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-commercial-900">{stats.clientes.total}</div>
-              <p className="text-xs text-commercial-500 mt-2">
-                +{stats.clientes.novos} novos este mês
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Produtos */}
-          <Card className="card-shadow hover:card-shadow-lg transition-all duration-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-commercial-600">
-                Produtos
-              </CardTitle>
-              <Package className="h-4 w-4 text-primary-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-commercial-900">{stats.produtos.total}</div>
-              <p className="text-xs text-commercial-500 mt-2">
-                {stats.produtos.categorias} categorias
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Taxa de Conversão */}
-          <Card className="card-shadow hover:card-shadow-lg transition-all duration-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-commercial-600">
-                Taxa de Conversão
-              </CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-commercial-900">{stats.conversao.taxa}</div>
-              <p className="text-xs text-green-600 mt-2">
-                {stats.conversao.tendencia} vs. mês anterior
-              </p>
-            </CardContent>
-          </Card>
+          {stats.map((stat, index) => (
+            <StatsCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              subtitle={stat.subtitle}
+              icon={stat.icon}
+              iconColor={stat.iconColor}
+              trend={stat.trend}
+            />
+          ))}
         </div>
 
-        {/* Recent Activity and Quick Links */}
+        {/* Activity Feed and Analytics */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Activity */}
-          <Card className="card-shadow">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-commercial-900 flex items-center space-x-2">
-                <Clock className="w-5 h-5" />
-                <span>Atividades Recentes</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <ActivityFeed />
+          
+          {/* Performance Summary */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg card-shadow p-6">
+              <h3 className="text-lg font-semibold text-commercial-900 mb-4">
+                Performance Este Mês
+              </h3>
               <div className="space-y-4">
-                {recentActivity.map((activity, index) => (
-                  <div key={index} className="flex items-start space-x-3 p-3 bg-commercial-50 rounded-lg">
-                    <div className={`w-2 h-2 rounded-full mt-2 ${
-                      activity.type === 'proposta' ? 'bg-primary-500' : 'bg-green-500'
-                    }`} />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-commercial-900">
-                        {activity.title}
-                      </p>
-                      <p className="text-sm text-commercial-600">
-                        {activity.client}
-                      </p>
-                      <p className="text-xs text-commercial-500 mt-1">
-                        {activity.time}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-commercial-600">Propostas Enviadas</span>
+                  <span className="font-medium">24</span>
+                </div>
+                <div className="w-full bg-commercial-200 rounded-full h-2">
+                  <div className="bg-primary-600 h-2 rounded-full" style={{ width: '75%' }}></div>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-commercial-600">Propostas Aceitas</span>
+                  <span className="font-medium">16</span>
+                </div>
+                <div className="w-full bg-commercial-200 rounded-full h-2">
+                  <div className="bg-green-600 h-2 rounded-full" style={{ width: '67%' }}></div>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-commercial-600">Receita Gerada</span>
+                  <span className="font-medium">R$ 125.600</span>
+                </div>
+                <div className="w-full bg-commercial-200 rounded-full h-2">
+                  <div className="bg-emerald-600 h-2 rounded-full" style={{ width: '85%' }}></div>
+                </div>
               </div>
-              <Button asChild variant="ghost" className="w-full mt-4">
-                <Link to="/atividades" className="flex items-center justify-center space-x-2">
-                  <span>Ver todas as atividades</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Quick Links */}
-          <Card className="card-shadow">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-commercial-900">
-                Acesso Rápido
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 gap-3">
-                <Button asChild variant="ghost" className="justify-start h-12">
-                  <Link to="/propostas" className="flex items-center space-x-3">
-                    <FileText className="w-5 h-5 text-primary-600" />
-                    <div className="text-left">
-                      <p className="font-medium">Gerenciar Propostas</p>
-                      <p className="text-xs text-commercial-500">Ver todas as propostas</p>
-                    </div>
-                  </Link>
-                </Button>
-                
-                <Button asChild variant="ghost" className="justify-start h-12">
-                  <Link to="/clientes" className="flex items-center space-x-3">
-                    <Users className="w-5 h-5 text-green-600" />
-                    <div className="text-left">
-                      <p className="font-medium">Base de Clientes</p>
-                      <p className="text-xs text-commercial-500">Gerenciar contatos</p>
-                    </div>
-                  </Link>
-                </Button>
-                
-                <Button asChild variant="ghost" className="justify-start h-12">
-                  <Link to="/produtos" className="flex items-center space-x-3">
-                    <Package className="w-5 h-5 text-orange-600" />
-                    <div className="text-left">
-                      <p className="font-medium">Catálogo de Produtos</p>
-                      <p className="text-xs text-commercial-500">Preços e disponibilidade</p>
-                    </div>
-                  </Link>
-                </Button>
-                
-                <Button asChild variant="ghost" className="justify-start h-12">
-                  <Link to="/relatorios" className="flex items-center space-x-3">
-                    <DollarSign className="w-5 h-5 text-purple-600" />
-                    <div className="text-left">
-                      <p className="font-medium">Relatórios</p>
-                      <p className="text-xs text-commercial-500">Análises e métricas</p>
-                    </div>
-                  </Link>
-                </Button>
+            <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg card-shadow p-6 text-white">
+              <h3 className="text-lg font-semibold mb-2">
+                🎯 Meta do Mês
+              </h3>
+              <p className="text-primary-100 text-sm mb-4">
+                Você está quase lá! Faltam apenas R$ 44.400 para atingir sua meta.
+              </p>
+              <div className="bg-white/20 rounded-full h-3 mb-2">
+                <div className="bg-white h-3 rounded-full" style={{ width: '74%' }}></div>
               </div>
-            </CardContent>
-          </Card>
+              <p className="text-sm text-primary-100">
+                74% concluído - R$ 125.600 de R$ 170.000
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
