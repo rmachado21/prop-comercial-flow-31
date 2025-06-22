@@ -206,7 +206,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 {product.stock_quantity ?? 'N/A'} {product.unit}
               </span>
               {isLowStock && (
-                <AlertTriangle className="w-4 h-4 text-yellow-500" title="Estoque baixo" />
+                <AlertTriangle className="w-4 h-4 text-yellow-500" />
               )}
             </div>
           </div>
