@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserProfile } from '@/hooks/useUserProfile';
 import { Button } from '@/components/ui/button';
 import { 
   FileText, 
@@ -15,7 +16,8 @@ import {
 import { useState } from 'react';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
+  const { profile } = useUserProfile();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -77,8 +79,8 @@ const Navbar = () => {
             {/* Info do usuário desktop */}
             <div className="hidden md:flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm font-medium text-commercial-900">{user?.name}</p>
-                <p className="text-xs text-commercial-500">{user?.company}</p>
+                <p className="text-sm font-medium text-commercial-900">{profile?.name || 'Usuário'}</p>
+                <p className="text-xs text-commercial-500">{profile?.company || 'Sem empresa'}</p>
               </div>
               <Button
                 variant="outline"
@@ -135,8 +137,8 @@ const Navbar = () => {
             {/* Info do usuário mobile */}
             <div className="border-t border-commercial-200 pt-4 mt-4">
               <div className="px-3 py-2">
-                <p className="text-base font-medium text-commercial-900">{user?.name}</p>
-                <p className="text-sm text-commercial-500">{user?.company}</p>
+                <p className="text-base font-medium text-commercial-900">{profile?.name || 'Usuário'}</p>
+                <p className="text-sm text-commercial-500">{profile?.company || 'Sem empresa'}</p>
               </div>
               <Button
                 variant="outline"

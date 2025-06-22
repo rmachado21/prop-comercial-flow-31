@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 const WelcomeHeader: React.FC = () => {
-  const { user } = useAuth();
+  const { profile } = useUserProfile();
   
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -23,7 +23,7 @@ const WelcomeHeader: React.FC = () => {
   return (
     <div className="mb-8">
       <h1 className="text-3xl font-bold text-commercial-900">
-        {getGreeting()}, {user?.name}! 👋
+        {getGreeting()}, {profile?.name || 'Usuário'}! 👋
       </h1>
       <p className="text-commercial-600 mt-2">
         {dateString.charAt(0).toUpperCase() + dateString.slice(1)}
