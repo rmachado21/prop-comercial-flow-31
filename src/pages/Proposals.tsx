@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,20 +13,26 @@ import {
   Send,
   Filter,
   Calendar,
-  DollarSign
+  DollarSign,
+  Download
 } from 'lucide-react';
 import { useProposals, Proposal } from '@/hooks/useProposals';
+import { useProposalItems } from '@/hooks/useProposalItems';
 import Navbar from '@/components/Navbar';
 import ProposalForm from '@/components/Proposals/ProposalForm';
 import DeleteProposalDialog from '@/components/Proposals/DeleteProposalDialog';
+import ProposalExportDialog from '@/components/Proposals/ProposalExportDialog';
+import { useNavigate } from 'react-router-dom';
 
 const Proposals: React.FC = () => {
+  const navigate = useNavigate();
   const { proposals, isLoading, sendProposal } = useProposals();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showForm, setShowForm] = useState(false);
   const [editingProposal, setEditingProposal] = useState<Proposal | null>(null);
   const [deleteProposal, setDeleteProposal] = useState<Proposal | null>(null);
+  const [exportProposal, setExportProposal] = useState<Proposal | null>(null);
 
   const filteredProposals = proposals.filter(proposal => {
     const matchesSearch = 
@@ -53,6 +58,10 @@ const Proposals: React.FC = () => {
     return <Badge className={config.className}>{config.label}</Badge>;
   };
 
+  const handleView = (proposal: Proposal) => {
+    navigate(`/propostas/ver/${proposal.id}`);
+  };
+
   const handleEdit = (proposal: Proposal) => {
     setEditingProposal(proposal);
     setShowForm(true);
@@ -67,6 +76,10 @@ const Proposals: React.FC = () => {
     if (proposal.status === 'draft') {
       await sendProposal(proposal.id);
     }
+  };
+
+  const handleExport = (proposal: Proposal) => {
+    setExportProposal(proposal);
   };
 
   const handleFormClose = () => {
@@ -292,6 +305,20 @@ const Proposals: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2 ml-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleView(proposal)}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleExport(proposal)}
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
                       {proposal.status === 'draft' && (
                         <Button
                           variant="outline"
@@ -328,6 +355,15 @@ const Proposals: React.FC = () => {
         <DeleteProposalDialog
           proposal={deleteProposal}
           onClose={() => setDeleteProposal(null)}
+        />
+      )}
+
+      {exportProposal && (
+        <ProposalExportDialog
+          proposal={exportProposal}
+          items={[]} // Will be loaded by the dialog component
+          open={!!exportProposal}
+          onClose={() => setExportProposal(null)}
         />
       )}
     </div>

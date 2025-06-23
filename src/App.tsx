@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import Clients from "./pages/Clients";
 import Products from "./pages/Products";
 import Proposals from "./pages/Proposals";
+import ProposalView from "./pages/ProposalView";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,12 @@ const App = () => (
             <Route path="/propostas" element={
               <ProtectedRoute>
                 <Proposals />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/propostas/ver/:id" element={
+              <ProtectedRoute>
+                <ProposalView />
               </ProtectedRoute>
             } />
             
