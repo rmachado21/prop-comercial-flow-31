@@ -168,12 +168,158 @@ export type Database = {
         }
         Relationships: []
       }
+      proposal_items: {
+        Row: {
+          created_at: string
+          discount_amount: number | null
+          discount_percentage: number | null
+          id: string
+          product_description: string | null
+          product_id: string | null
+          product_name: string
+          proposal_id: string
+          quantity: number
+          sort_order: number | null
+          total_price: number
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          id?: string
+          product_description?: string | null
+          product_id?: string | null
+          product_name: string
+          proposal_id: string
+          quantity?: number
+          sort_order?: number | null
+          total_price?: number
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          id?: string
+          product_description?: string | null
+          product_id?: string | null
+          product_name?: string
+          proposal_id?: string
+          quantity?: number
+          sort_order?: number | null
+          total_price?: number
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposal_items_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proposals: {
+        Row: {
+          approved_at: string | null
+          client_id: string
+          created_at: string
+          description: string | null
+          discount_amount: number | null
+          discount_percentage: number | null
+          expiry_date: string | null
+          id: string
+          notes: string | null
+          proposal_number: string
+          sent_at: string | null
+          status: string | null
+          subtotal: number
+          tax_amount: number | null
+          tax_percentage: number | null
+          terms_and_conditions: string | null
+          title: string
+          total_amount: number
+          updated_at: string
+          user_id: string
+          validity_days: number | null
+        }
+        Insert: {
+          approved_at?: string | null
+          client_id: string
+          created_at?: string
+          description?: string | null
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          proposal_number: string
+          sent_at?: string | null
+          status?: string | null
+          subtotal?: number
+          tax_amount?: number | null
+          tax_percentage?: number | null
+          terms_and_conditions?: string | null
+          title: string
+          total_amount?: number
+          updated_at?: string
+          user_id: string
+          validity_days?: number | null
+        }
+        Update: {
+          approved_at?: string | null
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          proposal_number?: string
+          sent_at?: string | null
+          status?: string | null
+          subtotal?: number
+          tax_amount?: number | null
+          tax_percentage?: number | null
+          terms_and_conditions?: string | null
+          title?: string
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+          validity_days?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposals_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_proposal_number: {
+        Args: { user_uuid: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
