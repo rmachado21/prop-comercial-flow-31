@@ -49,9 +49,16 @@ export const useProposalItems = (proposalId: string | null) => {
       const { error } = await supabase
         .from('proposal_items')
         .insert({
-          ...itemData,
           proposal_id: proposalId,
+          product_name: itemData.product_name || '',
+          product_description: itemData.product_description || null,
+          quantity: itemData.quantity || 1,
+          unit_price: itemData.unit_price || 0,
           total_price: (itemData.quantity || 1) * (itemData.unit_price || 0),
+          product_id: itemData.product_id || null,
+          discount_percentage: itemData.discount_percentage || null,
+          discount_amount: itemData.discount_amount || null,
+          sort_order: itemData.sort_order || null,
         });
 
       if (error) throw error;

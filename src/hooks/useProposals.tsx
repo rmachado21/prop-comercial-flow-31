@@ -75,7 +75,7 @@ export const useProposals = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProposals(data || []);
+      setProposals((data as Proposal[]) || []);
     } catch (error) {
       console.error('Error fetching proposals:', error);
       toast({
@@ -104,6 +104,7 @@ export const useProposals = () => {
           ...proposalData,
           user_id: user.id,
           proposal_number: proposalNumber,
+          product_name: proposalData.title || '',
         })
         .select()
         .single();

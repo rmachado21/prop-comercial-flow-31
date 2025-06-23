@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +18,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useProposals, Proposal } from '@/hooks/useProposals';
 import { useProposalItems } from '@/hooks/useProposalItems';
-import { Navbar } from '@/components/Navbar';
+import Navbar from '@/components/Navbar';
 import ClientSelector from '@/components/Proposals/ClientSelector';
 import ProposalItemForm from '@/components/Proposals/ProposalItemForm';
 
@@ -121,6 +120,14 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
   const handleCloseItemForm = () => {
     setShowItemForm(false);
     setEditingItem(null);
+  };
+
+  const handleSaveItem = async (itemData: any) => {
+    if (editingItem) {
+      await updateItem(editingItem.id, itemData);
+    } else {
+      await addItem(itemData);
+    }
   };
 
   return (
@@ -431,7 +438,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
       {showItemForm && (
         <ProposalItemForm
           item={editingItem}
-          onSave={editingItem ? updateItem : addItem}
+          onSave={handleSaveItem}
           onClose={handleCloseItemForm}
         />
       )}

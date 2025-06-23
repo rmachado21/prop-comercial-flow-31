@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,7 +31,7 @@ interface Product {
 
 interface ProposalItemFormProps {
   item?: ProposalItem | null;
-  onSave: (itemData: Partial<ProposalItem>) => void;
+  onSave: (itemData: any) => void;
   onClose: () => void;
 }
 
@@ -98,12 +97,7 @@ const ProposalItemForm: React.FC<ProposalItemFormProps> = ({ item, onSave, onClo
         total_price: data.quantity * data.unit_price,
       };
 
-      if (item) {
-        await onSave(item.id, itemData);
-      } else {
-        await onSave(itemData);
-      }
-      
+      await onSave(itemData);
       onClose();
     } catch (error) {
       console.error('Error saving item:', error);

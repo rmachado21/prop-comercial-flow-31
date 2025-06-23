@@ -17,7 +17,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import { useProposals, Proposal } from '@/hooks/useProposals';
-import { Navbar } from '@/components/Navbar';
+import Navbar from '@/components/Navbar';
 import ProposalForm from '@/components/Proposals/ProposalForm';
 import DeleteProposalDialog from '@/components/Proposals/DeleteProposalDialog';
 
