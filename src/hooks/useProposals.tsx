@@ -104,7 +104,6 @@ export const useProposals = () => {
           ...proposalData,
           user_id: user.id,
           proposal_number: proposalNumber,
-          product_name: proposalData.title || '',
         })
         .select()
         .single();
