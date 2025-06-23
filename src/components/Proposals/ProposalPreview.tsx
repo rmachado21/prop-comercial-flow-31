@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,8 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Proposal } from '@/hooks/useProposals';
-import { ProposalItem } from '@/hooks/useProposalItems';
+import { Proposal, ProposalItem } from '@/hooks/useProposals';
 
 interface ProposalPreviewProps {
   proposal: Proposal;

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Dialog,
@@ -15,8 +14,7 @@ import {
   Download,
   X
 } from 'lucide-react';
-import { Proposal } from '@/hooks/useProposals';
-import { ProposalItem } from '@/hooks/useProposalItems';
+import { Proposal, ProposalItem } from '@/hooks/useProposals';
 import { useProposalExport } from '@/hooks/useProposalExport';
 
 interface ProposalExportDialogProps {

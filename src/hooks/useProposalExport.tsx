@@ -1,10 +1,8 @@
-
 import { useState } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
-import { Proposal } from './useProposals';
-import { ProposalItem } from './useProposalItems';
+import { Proposal, ProposalItem } from './useProposals';
 import { useToast } from '@/hooks/use-toast';
 
 export const useProposalExport = () => {
