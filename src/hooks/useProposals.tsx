@@ -98,13 +98,29 @@ export const useProposals = () => {
 
       if (numberError) throw numberError;
 
+      // Create a clean data object with only the fields that exist in the proposals table
+      const cleanProposalData = {
+        user_id: user.id,
+        proposal_number: proposalNumber,
+        title: proposalData.title || '',
+        description: proposalData.description || null,
+        client_id: proposalData.client_id || '',
+        status: proposalData.status || 'draft' as const,
+        subtotal: proposalData.subtotal || 0,
+        discount_percentage: proposalData.discount_percentage || null,
+        discount_amount: proposalData.discount_amount || null,
+        tax_percentage: proposalData.tax_percentage || null,
+        tax_amount: proposalData.tax_amount || null,
+        total_amount: proposalData.total_amount || 0,
+        validity_days: proposalData.validity_days || null,
+        expiry_date: proposalData.expiry_date || null,
+        notes: proposalData.notes || null,
+        terms_and_conditions: proposalData.terms_and_conditions || null,
+      };
+
       const { data, error } = await supabase
         .from('proposals')
-        .insert({
-          ...proposalData,
-          user_id: user.id,
-          proposal_number: proposalNumber,
-        })
+        .insert(cleanProposalData)
         .select()
         .single();
 
@@ -130,12 +146,35 @@ export const useProposals = () => {
 
   const updateProposal = async (id: string, proposalData: Partial<Proposal>) => {
     try {
+      // Create a clean data object excluding read-only fields and relations
+      const cleanProposalData = {
+        title: proposalData.title,
+        description: proposalData.description,
+        client_id: proposalData.client_id,
+        status: proposalData.status,
+        subtotal: proposalData.subtotal,
+        discount_percentage: proposalData.discount_percentage,
+        discount_amount: proposalData.discount_amount,
+        tax_percentage: proposalData.tax_percentage,
+        tax_amount: proposalData.tax_amount,
+        total_amount: proposalData.total_amount,
+        validity_days: proposalData.validity_days,
+        expiry_date: proposalData.expiry_date,
+        notes: proposalData.notes,
+        terms_and_conditions: proposalData.terms_and_conditions,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Remove undefined fields
+      Object.keys(cleanProposalData).forEach(key => {
+        if (cleanProposalData[key as keyof typeof cleanProposalData] === undefined) {
+          delete cleanProposalData[key as keyof typeof cleanProposalData];
+        }
+      });
+
       const { error } = await supabase
         .from('proposals')
-        .update({
-          ...proposalData,
-          updated_at: new Date().toISOString(),
-        })
+        .update(cleanProposalData)
         .eq('id', id);
 
       if (error) throw error;
