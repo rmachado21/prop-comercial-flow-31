@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -140,7 +141,7 @@ export const useProposalExport = () => {
         ['Cliente', proposal.client?.name || 'N/A'],
         ['Status', proposal.status],
         ['Data de Criação', new Date(proposal.created_at).toLocaleDateString('pt-BR')],
-        ['Validade (dias)', proposal.validity_days || 'Indefinida'],
+        ['Validade (dias)', proposal.validity_days?.toString() || 'Indefinida'],
         [''],
         ['RESUMO FINANCEIRO'],
         ['Subtotal', `R$ ${proposal.subtotal.toFixed(2)}`],
@@ -163,14 +164,14 @@ export const useProposalExport = () => {
 
       items.forEach((item, index) => {
         itemsData.push([
-          index + 1,
+          (index + 1).toString(),
           item.product_name,
           item.product_description || '',
-          item.quantity,
-          item.unit_price,
-          item.discount_percentage || 0,
-          item.discount_amount || 0,
-          item.total_price
+          item.quantity.toString(),
+          item.unit_price.toString(),
+          (item.discount_percentage || 0).toString(),
+          (item.discount_amount || 0).toString(),
+          item.total_price.toString()
         ]);
       });
 
