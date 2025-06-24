@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,6 +47,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showItemForm, setShowItemForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [tempItems, setTempItems] = useState<any[]>([]);
 
   const form = useForm<ProposalFormData>({
     resolver: zodResolver(proposalSchema),
@@ -61,7 +63,9 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
     },
   });
 
-  const subtotal = items.reduce((sum, item) => sum + item.total_price, 0);
+  // Use items from database if proposal exists, otherwise use temporary items
+  const currentItems = proposal ? items : tempItems;
+  const subtotal = currentItems.reduce((sum, item) => sum + item.total_price, 0);
   const discountAmount = (subtotal * (form.watch('discount_percentage') || 0)) / 100;
   const taxAmount = ((subtotal - discountAmount) * (form.watch('tax_percentage') || 0)) / 100;
   const totalAmount = subtotal - discountAmount + taxAmount;
@@ -71,6 +75,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
     try {
       const proposalData = {
         ...data,
+        subtotal,
         discount_amount: discountAmount,
         tax_amount: taxAmount,
         total_amount: totalAmount,
@@ -82,7 +87,19 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
       if (proposal) {
         await updateProposal(proposal.id, proposalData);
       } else {
-        await createProposal(proposalData);
+        const newProposal = await createProposal(proposalData);
+        if (newProposal && tempItems.length > 0) {
+          // Add temporary items to the newly created proposal
+          for (const tempItem of tempItems) {
+            await addItem({
+              product_name: tempItem.product_name,
+              product_description: tempItem.product_description,
+              quantity: tempItem.quantity,
+              unit_price: tempItem.unit_price,
+              total_price: tempItem.total_price,
+            });
+          }
+        }
       }
       
       onClose();
@@ -123,10 +140,34 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
   };
 
   const handleSaveItem = async (itemData: any) => {
-    if (editingItem) {
-      await updateItem(editingItem.id, itemData);
+    if (proposal) {
+      // If proposal exists, save to database
+      if (editingItem) {
+        await updateItem(editingItem.id, itemData);
+      } else {
+        await addItem(itemData);
+      }
     } else {
-      await addItem(itemData);
+      // If new proposal, save to temporary items
+      if (editingItem) {
+        setTempItems(prev => prev.map(item => 
+          item.id === editingItem.id ? { ...itemData, id: editingItem.id } : item
+        ));
+      } else {
+        setTempItems(prev => [...prev, itemData]);
+      }
+    }
+  };
+
+  const handleDeleteTempItem = (itemId: string) => {
+    setTempItems(prev => prev.filter(item => item.id !== itemId));
+  };
+
+  const handleDeleteItem = async (itemId: string) => {
+    if (proposal) {
+      await deleteItem(itemId);
+    } else {
+      handleDeleteTempItem(itemId);
     }
   };
 
@@ -240,95 +281,93 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
               </Card>
 
               {/* Items */}
-              {proposal && (
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Itens da Proposta</CardTitle>
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Itens da Proposta</CardTitle>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleAddItem}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Adicionar Item
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {currentItems.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Package className="w-12 h-12 text-commercial-400 mx-auto mb-4" />
+                      <p className="text-commercial-600">Nenhum item adicionado</p>
                       <Button
                         type="button"
                         variant="outline"
                         onClick={handleAddItem}
+                        className="mt-4"
                       >
                         <Plus className="w-4 h-4 mr-2" />
-                        Adicionar Item
+                        Adicionar Primeiro Item
                       </Button>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    {items.length === 0 ? (
-                      <div className="text-center py-8">
-                        <Package className="w-12 h-12 text-commercial-400 mx-auto mb-4" />
-                        <p className="text-commercial-600">Nenhum item adicionado</p>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={handleAddItem}
-                          className="mt-4"
-                        >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Adicionar Primeiro Item
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {items.map((item, index) => (
-                          <div key={item.id} className="border rounded-lg p-4">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <h4 className="font-medium text-commercial-900">
-                                  {index + 1}. {item.product_name}
-                                </h4>
-                                {item.product_description && (
-                                  <p className="text-sm text-commercial-600 mt-1">
-                                    {item.product_description}
+                  ) : (
+                    <div className="space-y-4">
+                      {currentItems.map((item, index) => (
+                        <div key={item.id} className="border rounded-lg p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-commercial-900">
+                                {index + 1}. {item.product_name}
+                              </h4>
+                              {item.product_description && (
+                                <p className="text-sm text-commercial-600 mt-1">
+                                  {item.product_description}
+                                </p>
+                              )}
+                              <div className="grid grid-cols-3 gap-4 mt-3 text-sm">
+                                <div>
+                                  <span className="text-commercial-500">Quantidade:</span>
+                                  <p className="font-medium">{item.quantity}</p>
+                                </div>
+                                <div>
+                                  <span className="text-commercial-500">Preço Unit.:</span>
+                                  <p className="font-medium">
+                                    R$ {item.unit_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                   </p>
-                                )}
-                                <div className="grid grid-cols-3 gap-4 mt-3 text-sm">
-                                  <div>
-                                    <span className="text-commercial-500">Quantidade:</span>
-                                    <p className="font-medium">{item.quantity}</p>
-                                  </div>
-                                  <div>
-                                    <span className="text-commercial-500">Preço Unit.:</span>
-                                    <p className="font-medium">
-                                      R$ {item.unit_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <span className="text-commercial-500">Total:</span>
-                                    <p className="font-bold">
-                                      R$ {item.total_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                    </p>
-                                  </div>
+                                </div>
+                                <div>
+                                  <span className="text-commercial-500">Total:</span>
+                                  <p className="font-bold">
+                                    R$ {item.total_price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                  </p>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2 ml-4">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleEditItem(item)}
-                                >
-                                  Editar
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => deleteItem(item.id)}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 ml-4">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditItem(item)}
+                              >
+                                Editar
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDeleteItem(item.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
               {/* Additional Information */}
               <Card>

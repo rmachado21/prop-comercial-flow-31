@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -95,6 +96,7 @@ const ProposalItemForm: React.FC<ProposalItemFormProps> = ({ item, onSave, onClo
       const itemData = {
         ...data,
         total_price: data.quantity * data.unit_price,
+        id: item?.id || `temp-${Date.now()}`, // Temporary ID for new items
       };
 
       await onSave(itemData);
