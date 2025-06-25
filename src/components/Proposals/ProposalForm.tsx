@@ -24,8 +24,6 @@ import ClientSelector from '@/components/Proposals/ClientSelector';
 import ProposalItemForm from '@/components/Proposals/ProposalItemForm';
 
 const proposalSchema = z.object({
-  title: z.string().min(1, 'Título é obrigatório'),
-  description: z.string().optional(),
   client_id: z.string().min(1, 'Cliente é obrigatório'),
   validity_days: z.number().min(1, 'Validade deve ser maior que 0').optional(),
   discount_percentage: z.number().min(0).max(100).optional(),
@@ -52,8 +50,6 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
   const form = useForm<ProposalFormData>({
     resolver: zodResolver(proposalSchema),
     defaultValues: {
-      title: proposal?.title || '',
-      description: proposal?.description || '',
       client_id: proposal?.client_id || '',
       validity_days: proposal?.validity_days || 30,
       discount_percentage: proposal?.discount_percentage || 0,
@@ -75,6 +71,8 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
     try {
       const proposalData = {
         ...data,
+        title: proposal?.title || 'Proposta Comercial', // Default title when creating new proposals
+        description: proposal?.description || null, // Keep existing description for existing proposals
         subtotal,
         discount_amount: discountAmount,
         tax_amount: taxAmount,
@@ -209,30 +207,6 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
                   <CardTitle>Informações Básicas</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="title">Título da Proposta *</Label>
-                    <Input
-                      id="title"
-                      {...form.register('title')}
-                      placeholder="Ex: Proposta de Sistema de Gestão"
-                    />
-                    {form.formState.errors.title && (
-                      <p className="text-sm text-red-600 mt-1">
-                        {form.formState.errors.title.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="description">Descrição</Label>
-                    <Textarea
-                      id="description"
-                      {...form.register('description')}
-                      placeholder="Descrição detalhada da proposta"
-                      rows={3}
-                    />
-                  </div>
-
                   <div>
                     <Label htmlFor="client_id">Cliente *</Label>
                     <ClientSelector
