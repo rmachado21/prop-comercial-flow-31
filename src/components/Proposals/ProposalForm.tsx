@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { 
   ArrowLeft, 
-  Save, 
+  Printer, 
   Send, 
   Plus,
   Trash2,
@@ -58,6 +58,20 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
       terms_and_conditions: proposal?.terms_and_conditions || '',
     },
   });
+
+  // Reset form when proposal data changes
+  useEffect(() => {
+    if (proposal) {
+      form.reset({
+        client_id: proposal.client_id || '',
+        validity_days: proposal.validity_days || 30,
+        discount_percentage: proposal.discount_percentage || 0,
+        tax_percentage: proposal.tax_percentage || 0,
+        notes: proposal.notes || '',
+        terms_and_conditions: proposal.terms_and_conditions || '',
+      });
+    }
+  }, [proposal, form]);
 
   // Use items from database if proposal exists, otherwise use temporary items
   const currentItems = proposal ? items : tempItems;
@@ -424,7 +438,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
                       disabled={isSubmitting}
                       className="w-full"
                     >
-                      <Save className="w-4 h-4 mr-2" />
+                      <Printer className="w-4 h-4 mr-2" />
                       {proposal ? 'Atualizar' : 'Salvar'} Proposta
                     </Button>
                     

@@ -22,6 +22,7 @@ import Navbar from '@/components/Navbar';
 import ProposalForm from '@/components/Proposals/ProposalForm';
 import DeleteProposalDialog from '@/components/Proposals/DeleteProposalDialog';
 import ProposalExportDialog from '@/components/Proposals/ProposalExportDialog';
+import ProposalViewModal from '@/components/Proposals/ProposalViewModal';
 import { useNavigate } from 'react-router-dom';
 
 const Proposals: React.FC = () => {
@@ -33,6 +34,7 @@ const Proposals: React.FC = () => {
   const [editingProposal, setEditingProposal] = useState<Proposal | null>(null);
   const [deleteProposal, setDeleteProposal] = useState<Proposal | null>(null);
   const [exportProposal, setExportProposal] = useState<Proposal | null>(null);
+  const [viewingProposal, setViewingProposal] = useState<Proposal | null>(null);
 
   const filteredProposals = proposals.filter(proposal => {
     const matchesSearch = 
@@ -59,7 +61,7 @@ const Proposals: React.FC = () => {
   };
 
   const handleView = (proposal: Proposal) => {
-    navigate(`/propostas/ver/${proposal.id}`);
+    setViewingProposal(proposal);
   };
 
   const handleEdit = (proposal: Proposal) => {
@@ -366,6 +368,12 @@ const Proposals: React.FC = () => {
           onClose={() => setExportProposal(null)}
         />
       )}
+
+      <ProposalViewModal
+        proposal={viewingProposal}
+        open={!!viewingProposal}
+        onClose={() => setViewingProposal(null)}
+      />
     </div>
   );
 };
