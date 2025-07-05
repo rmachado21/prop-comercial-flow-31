@@ -10,7 +10,7 @@ export const useProposalExport = () => {
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
 
-  const exportToPDF = async (proposal: Proposal, items: ProposalItem[]) => {
+  const exportToPDF = async (proposal: Proposal, items: ProposalItem[], customFileName?: string) => {
     setIsExporting(true);
     try {
       const pdf = new jsPDF();
@@ -109,7 +109,7 @@ export const useProposalExport = () => {
         pdf.text(termsLines, margin, yPosition);
       }
 
-      pdf.save(`proposta-${proposal.proposal_number}.pdf`);
+      pdf.save(`${customFileName || `proposta-${proposal.proposal_number}`}.pdf`);
       
       toast({
         title: 'Sucesso',

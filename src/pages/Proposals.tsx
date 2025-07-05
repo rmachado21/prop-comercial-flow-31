@@ -14,26 +14,27 @@ import {
   Filter,
   Calendar,
   DollarSign,
-  Download
+  Printer
 } from 'lucide-react';
 import { useProposals, Proposal } from '@/hooks/useProposals';
 import { useProposalItems } from '@/hooks/useProposalItems';
+import { useProposalExport } from '@/hooks/useProposalExport';
+import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import ProposalForm from '@/components/Proposals/ProposalForm';
 import DeleteProposalDialog from '@/components/Proposals/DeleteProposalDialog';
-import ProposalExportDialog from '@/components/Proposals/ProposalExportDialog';
 import ProposalViewModal from '@/components/Proposals/ProposalViewModal';
 import { useNavigate } from 'react-router-dom';
 
 const Proposals: React.FC = () => {
   const navigate = useNavigate();
   const { proposals, isLoading, sendProposal } = useProposals();
+  const { exportToPDF } = useProposalExport();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showForm, setShowForm] = useState(false);
   const [editingProposal, setEditingProposal] = useState<Proposal | null>(null);
   const [deleteProposal, setDeleteProposal] = useState<Proposal | null>(null);
-  const [exportProposal, setExportProposal] = useState<Proposal | null>(null);
   const [viewingProposal, setViewingProposal] = useState<Proposal | null>(null);
 
   const filteredProposals = proposals.filter(proposal => {
@@ -80,8 +81,24 @@ const Proposals: React.FC = () => {
     }
   };
 
-  const handleExport = (proposal: Proposal) => {
-    setExportProposal(proposal);
+  const handleDirectPDFExport = async (proposal: Proposal) => {
+    // Buscar itens da proposta
+    const { data: items } = await supabase
+      .from('proposal_items')
+      .select('*')
+      .eq('proposal_id', proposal.id)
+      .order('sort_order', { ascending: true });
+
+    // Gerar nome do arquivo personalizado
+    const clientName = proposal.client?.name || 'Cliente';
+    const nameWords = clientName.split(' ').filter(word => word.length > 0);
+    const firstTwoNames = nameWords.slice(0, 2).join('-').toLowerCase()
+      .replace(/[^a-z0-9-]/g, ''); // Remove caracteres especiais
+    const currentDate = new Date().toISOString().split('T')[0]; // formato YYYY-MM-DD
+    const customFileName = `prop-${proposal.proposal_number}-${firstTwoNames}-${currentDate}`;
+
+    // Exportar PDF com nome personalizado
+    await exportToPDF(proposal, items || [], customFileName);
   };
 
   const handleFormClose = () => {
@@ -317,9 +334,9 @@ const Proposals: React.FC = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleExport(proposal)}
+                        onClick={() => handleDirectPDFExport(proposal)}
                       >
-                        <Download className="w-4 h-4" />
+                        <Printer className="w-4 h-4" />
                       </Button>
                       {proposal.status === 'draft' && (
                         <Button
@@ -357,15 +374,6 @@ const Proposals: React.FC = () => {
         <DeleteProposalDialog
           proposal={deleteProposal}
           onClose={() => setDeleteProposal(null)}
-        />
-      )}
-
-      {exportProposal && (
-        <ProposalExportDialog
-          proposal={exportProposal}
-          items={[]} // Will be loaded by the dialog component
-          open={!!exportProposal}
-          onClose={() => setExportProposal(null)}
         />
       )}
 
