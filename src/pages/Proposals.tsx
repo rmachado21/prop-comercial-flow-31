@@ -24,11 +24,12 @@ import Navbar from '@/components/Navbar';
 import ProposalForm from '@/components/Proposals/ProposalForm';
 import DeleteProposalDialog from '@/components/Proposals/DeleteProposalDialog';
 import ProposalViewModal from '@/components/Proposals/ProposalViewModal';
+import StatusSelector from '@/components/Proposals/StatusSelector';
 import { useNavigate } from 'react-router-dom';
 
 const Proposals: React.FC = () => {
   const navigate = useNavigate();
-  const { proposals, isLoading, sendProposal } = useProposals();
+  const { proposals, isLoading, sendProposal, updateProposalStatus } = useProposals();
   const { exportToPDF } = useProposalExport();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -55,6 +56,7 @@ const Proposals: React.FC = () => {
       approved: { label: 'Aprovada', className: 'bg-green-100 text-green-800' },
       rejected: { label: 'Rejeitada', className: 'bg-red-100 text-red-800' },
       expired: { label: 'Expirada', className: 'bg-yellow-100 text-yellow-800' },
+      nfe_issued: { label: 'NFe Emitida', className: 'bg-purple-100 text-purple-800' },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
@@ -111,6 +113,7 @@ const Proposals: React.FC = () => {
     draft: proposals.filter(p => p.status === 'draft').length,
     sent: proposals.filter(p => p.status === 'sent').length,
     approved: proposals.filter(p => p.status === 'approved').length,
+    nfe_issued: proposals.filter(p => p.status === 'nfe_issued').length,
     totalValue: proposals
       .filter(p => p.status === 'approved')
       .reduce((sum, p) => sum + p.total_amount, 0),
@@ -147,7 +150,7 @@ const Proposals: React.FC = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -200,6 +203,18 @@ const Proposals: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
+                  <p className="text-sm text-commercial-600">NFe Emitida</p>
+                  <p className="text-2xl font-bold text-commercial-900">{stats.nfe_issued}</p>
+                </div>
+                <FileText className="w-8 h-8 text-purple-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
                   <p className="text-sm text-commercial-600">Valor Aprovado</p>
                   <p className="text-xl font-bold text-commercial-900">
                     R$ {stats.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -240,6 +255,7 @@ const Proposals: React.FC = () => {
                   <option value="approved">Aprovada</option>
                   <option value="rejected">Rejeitada</option>
                   <option value="expired">Expirada</option>
+                  <option value="nfe_issued">NFe Emitida</option>
                 </select>
               </div>
             </div>
@@ -324,6 +340,10 @@ const Proposals: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2 ml-4">
+                      <StatusSelector
+                        currentStatus={proposal.status}
+                        onStatusChange={(newStatus) => updateProposalStatus(proposal.id, newStatus)}
+                      />
                       <Button
                         variant="outline"
                         size="sm"

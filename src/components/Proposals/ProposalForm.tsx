@@ -204,7 +204,8 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
                   {proposal.status === 'draft' ? 'Rascunho' : 
                    proposal.status === 'sent' ? 'Enviada' :
                    proposal.status === 'approved' ? 'Aprovada' :
-                   proposal.status === 'rejected' ? 'Rejeitada' : 'Expirada'}
+                   proposal.status === 'rejected' ? 'Rejeitada' : 
+                   proposal.status === 'nfe_issued' ? 'NFe Emitida' : 'Expirada'}
                 </Badge>
               </p>
             )}
@@ -439,8 +440,57 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
                       className="w-full"
                     >
                       <Printer className="w-4 h-4 mr-2" />
-                      {proposal ? 'Atualizar' : 'Salvar'} Proposta
+                      {proposal ? 'Atualizar' : 'Salvar'} Rascunho
                     </Button>
+                    
+                    {!proposal && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={async () => {
+                          const data = form.getValues();
+                          setIsSubmitting(true);
+                          try {
+                            const proposalData = {
+                              ...data,
+                              title: 'Proposta Comercial',
+                              description: null,
+                              status: 'sent' as const,
+                              subtotal,
+                              discount_amount: discountAmount,
+                              tax_amount: taxAmount,
+                              total_amount: totalAmount,
+                              expiry_date: data.validity_days 
+                                ? new Date(Date.now() + data.validity_days * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                                : null,
+                            };
+
+                            const newProposal = await createProposal(proposalData);
+                            if (newProposal && tempItems.length > 0) {
+                              for (const tempItem of tempItems) {
+                                await addItem({
+                                  product_name: tempItem.product_name,
+                                  product_description: tempItem.product_description,
+                                  quantity: tempItem.quantity,
+                                  unit_price: tempItem.unit_price,
+                                  total_price: tempItem.total_price,
+                                });
+                              }
+                            }
+                            onClose();
+                          } catch (error) {
+                            console.error('Error saving and sending proposal:', error);
+                          } finally {
+                            setIsSubmitting(false);
+                          }
+                        }}
+                        disabled={isSubmitting}
+                        className="w-full"
+                      >
+                        <Send className="w-4 h-4 mr-2" />
+                        Salvar e Enviar
+                      </Button>
+                    )}
                     
                     {proposal && proposal.status === 'draft' && (
                       <Button

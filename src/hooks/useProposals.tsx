@@ -11,7 +11,7 @@ export interface Proposal {
   proposal_number: string;
   title: string;
   description: string | null;
-  status: 'draft' | 'sent' | 'approved' | 'rejected' | 'expired';
+  status: 'draft' | 'sent' | 'approved' | 'rejected' | 'expired' | 'nfe_issued';
   subtotal: number;
   discount_percentage: number | null;
   discount_amount: number | null;
@@ -246,6 +246,52 @@ export const useProposals = () => {
     }
   };
 
+  const updateProposalStatus = async (id: string, newStatus: Proposal['status']) => {
+    try {
+      const updateData: any = {
+        status: newStatus,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Add specific timestamps based on status
+      if (newStatus === 'sent') {
+        updateData.sent_at = new Date().toISOString();
+      } else if (newStatus === 'approved') {
+        updateData.approved_at = new Date().toISOString();
+      }
+
+      const { error } = await supabase
+        .from('proposals')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) throw error;
+
+      await fetchProposals();
+      
+      const statusLabels = {
+        draft: 'Rascunho',
+        sent: 'Enviada',
+        approved: 'Aprovada',
+        rejected: 'Rejeitada',
+        expired: 'Expirada',
+        nfe_issued: 'NFe Emitida'
+      };
+
+      toast({
+        title: 'Sucesso',
+        description: `Status alterado para: ${statusLabels[newStatus]}`,
+      });
+    } catch (error) {
+      console.error('Error updating proposal status:', error);
+      toast({
+        title: 'Erro',
+        description: 'Erro ao alterar status da proposta',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return {
     proposals,
     isLoading,
@@ -254,5 +300,6 @@ export const useProposals = () => {
     updateProposal,
     deleteProposal,
     sendProposal,
+    updateProposalStatus,
   };
 };
