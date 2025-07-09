@@ -14,7 +14,8 @@ import {
   Filter,
   Calendar,
   DollarSign,
-  Printer
+  Printer,
+  Mail
 } from 'lucide-react';
 import { useProposals, Proposal } from '@/hooks/useProposals';
 import { useProposalItems } from '@/hooks/useProposalItems';
@@ -24,6 +25,7 @@ import Navbar from '@/components/Navbar';
 import ProposalForm from '@/components/Proposals/ProposalForm';
 import DeleteProposalDialog from '@/components/Proposals/DeleteProposalDialog';
 import ProposalViewModal from '@/components/Proposals/ProposalViewModal';
+import ProposalSendDialog from '@/components/Proposals/ProposalSendDialog';
 import StatusSelector from '@/components/Proposals/StatusSelector';
 import { useNavigate } from 'react-router-dom';
 
@@ -37,6 +39,7 @@ const Proposals: React.FC = () => {
   const [editingProposal, setEditingProposal] = useState<Proposal | null>(null);
   const [deleteProposal, setDeleteProposal] = useState<Proposal | null>(null);
   const [viewingProposal, setViewingProposal] = useState<Proposal | null>(null);
+  const [sendingProposal, setSendingProposal] = useState<Proposal | null>(null);
 
   const filteredProposals = proposals.filter(proposal => {
     const matchesSearch = 
@@ -81,6 +84,10 @@ const Proposals: React.FC = () => {
     if (proposal.status === 'draft') {
       await sendProposal(proposal.id);
     }
+  };
+
+  const handleSendDialog = (proposal: Proposal) => {
+    setSendingProposal(proposal);
   };
 
   const handleDirectPDFExport = async (proposal: Proposal) => {
@@ -354,6 +361,14 @@ const Proposals: React.FC = () => {
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => handleSendDialog(proposal)}
+                        title="Enviar Proposta"
+                      >
+                        <Mail className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => handleDirectPDFExport(proposal)}
                       >
                         <Printer className="w-4 h-4" />
@@ -401,6 +416,12 @@ const Proposals: React.FC = () => {
         proposal={viewingProposal}
         open={!!viewingProposal}
         onClose={() => setViewingProposal(null)}
+      />
+
+      <ProposalSendDialog
+        proposal={sendingProposal}
+        open={!!sendingProposal}
+        onClose={() => setSendingProposal(null)}
       />
     </div>
   );

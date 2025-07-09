@@ -1,11 +1,13 @@
+
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Printer, Download } from 'lucide-react';
+import { Printer, Download, Mail } from 'lucide-react';
 import { Proposal } from '@/hooks/useProposals';
 import { useProposalItems } from '@/hooks/useProposalItems';
 import ProposalPreview from './ProposalPreview';
 import ProposalExportDialog from './ProposalExportDialog';
+import ProposalSendDialog from './ProposalSendDialog';
 
 interface ProposalViewModalProps {
   proposal: Proposal | null;
@@ -20,6 +22,7 @@ const ProposalViewModal: React.FC<ProposalViewModalProps> = ({
 }) => {
   const { items } = useProposalItems(proposal?.id || null);
   const [showExportDialog, setShowExportDialog] = React.useState(false);
+  const [showSendDialog, setShowSendDialog] = React.useState(false);
 
   if (!proposal) return null;
 
@@ -31,6 +34,14 @@ const ProposalViewModal: React.FC<ProposalViewModalProps> = ({
             <div className="flex items-center justify-between">
               <DialogTitle>{proposal.title}</DialogTitle>
               <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSendDialog(true)}
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Enviar
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -67,6 +78,14 @@ const ProposalViewModal: React.FC<ProposalViewModalProps> = ({
           items={items}
           open={showExportDialog}
           onClose={() => setShowExportDialog(false)}
+        />
+      )}
+
+      {showSendDialog && (
+        <ProposalSendDialog
+          proposal={proposal}
+          open={showSendDialog}
+          onClose={() => setShowSendDialog(false)}
         />
       )}
     </>
