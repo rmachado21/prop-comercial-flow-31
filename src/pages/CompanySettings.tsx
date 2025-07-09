@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Link } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
-import { Building2, Upload, Download, Save, Loader2 } from 'lucide-react';
+import { Building2, Upload, Download, Save, Loader2, ArrowLeft } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 interface Company {
@@ -215,9 +216,17 @@ const CompanySettings = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Building2 className="w-6 h-6" />
-          <h1 className="text-2xl font-bold">Configurações da Empresa</h1>
+        <div className="flex items-center gap-4">
+          <Link to="/">
+            <Button variant="ghost" size="sm" className="flex items-center gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Voltar
+            </Button>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Building2 className="w-6 h-6" />
+            <h1 className="text-2xl font-bold">Configurações da Empresa</h1>
+          </div>
         </div>
         <Button onClick={handleBackup} variant="outline">
           <Download className="w-4 h-4 mr-2" />

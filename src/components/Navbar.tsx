@@ -12,7 +12,7 @@ import {
   LogOut,
   Menu,
   X,
-  Building2
+  Settings
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -27,7 +27,6 @@ const Navbar = () => {
     { href: '/propostas', label: 'Propostas', icon: FileText },
     { href: '/clientes', label: 'Clientes', icon: Users },
     { href: '/produtos', label: 'Produtos', icon: Package },
-    { href: '/configuracoes', label: 'Empresa', icon: Building2 },
   ];
 
   const isActive = (path: string) => {
@@ -84,15 +83,27 @@ const Navbar = () => {
                 <p className="text-sm font-medium text-commercial-900">{profile?.name || 'Usuário'}</p>
                 <p className="text-xs text-commercial-500">{profile?.company || 'Sem empresa'}</p>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLogout}
-                className="flex items-center space-x-2"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sair</span>
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Link to="/configuracoes">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="p-2"
+                    title="Configurações"
+                  >
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sair</span>
+                </Button>
+              </div>
             </div>
 
             {/* Botão menu mobile */}
@@ -142,14 +153,26 @@ const Navbar = () => {
                 <p className="text-base font-medium text-commercial-900">{profile?.name || 'Usuário'}</p>
                 <p className="text-sm text-commercial-500">{profile?.company || 'Sem empresa'}</p>
               </div>
-              <Button
-                variant="outline"
-                className="w-full mx-3 mt-2 flex items-center justify-center space-x-2"
-                onClick={handleLogout}
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sair</span>
-              </Button>
+              <div className="space-y-2 mx-3 mt-2">
+                <Link to="/configuracoes">
+                  <Button
+                    variant="outline"
+                    className="w-full flex items-center justify-center space-x-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span>Configurações</span>
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-center space-x-2"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sair</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
