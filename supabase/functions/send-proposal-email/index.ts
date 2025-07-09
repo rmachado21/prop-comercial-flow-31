@@ -2,7 +2,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 import { Resend } from "npm:resend@2.0.0";
-import jsPDF from "npm:jspdf@2.5.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -25,6 +24,11 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    console.log('=== INÍCIO DO PROCESSO DE ENVIO ===');
+    console.log('RESEND_API_KEY configurada:', !!Deno.env.get('RESEND_API_KEY'));
+    console.log('SUPABASE_URL configurada:', !!Deno.env.get('SUPABASE_URL'));
+    console.log('SUPABASE_ANON_KEY configurada:', !!Deno.env.get('SUPABASE_ANON_KEY'));
+
     // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -38,9 +42,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { proposalId, recipient, subject, message }: SendProposalEmailRequest = await req.json();
 
-    console.log('Sending proposal email:', { proposalId, recipient });
+    console.log('=== DADOS RECEBIDOS ===');
+    console.log('Proposal ID:', proposalId);
+    console.log('Recipient:', recipient);
+    console.log('Subject:', subject);
 
     // Fetch proposal details with client information
+    console.log('=== BUSCANDO PROPOSTA ===');
     const { data: proposal, error: proposalError } = await supabaseClient
       .from('proposals')
       .select(`
@@ -50,11 +58,20 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('id', proposalId)
       .single();
 
-    if (proposalError || !proposal) {
+    if (proposalError) {
+      console.error('Erro ao buscar proposta:', proposalError);
+      throw new Error(`Erro ao buscar proposta: ${proposalError.message}`);
+    }
+
+    if (!proposal) {
+      console.error('Proposta não encontrada');
       throw new Error('Proposta não encontrada');
     }
 
+    console.log('Proposta encontrada:', proposal.proposal_number);
+
     // Fetch proposal items
+    console.log('=== BUSCANDO ITENS DA PROPOSTA ===');
     const { data: items, error: itemsError } = await supabaseClient
       .from('proposal_items')
       .select('*')
@@ -62,115 +79,18 @@ const handler = async (req: Request): Promise<Response> => {
       .order('sort_order', { ascending: true });
 
     if (itemsError) {
-      throw new Error('Erro ao buscar itens da proposta');
+      console.error('Erro ao buscar itens:', itemsError);
+      throw new Error(`Erro ao buscar itens da proposta: ${itemsError.message}`);
     }
 
-    // Generate PDF
-    const pdf = new jsPDF();
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const margin = 20;
-    let yPosition = margin;
+    console.log('Itens encontrados:', items?.length || 0);
 
-    // Header
-    pdf.setFontSize(20);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('PROPOSTA COMERCIAL', margin, yPosition);
-    yPosition += 20;
-
-    // Proposal info
-    pdf.setFontSize(12);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`Número: ${proposal.proposal_number}`, margin, yPosition);
-    yPosition += 10;
-    pdf.text(`Título: ${proposal.title}`, margin, yPosition);
-    yPosition += 10;
-    pdf.text(`Cliente: ${proposal.client?.name || 'N/A'}`, margin, yPosition);
-    yPosition += 10;
-    pdf.text(`Data: ${new Date(proposal.created_at).toLocaleDateString('pt-BR')}`, margin, yPosition);
-    yPosition += 20;
-
-    // Items table
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('ITENS DA PROPOSTA', margin, yPosition);
-    yPosition += 15;
-
-    // Table headers
-    const headers = ['Item', 'Descrição', 'Qtd', 'Preço Unit.', 'Total'];
-    const columnWidths = [20, 80, 25, 30, 30];
-    let xPosition = margin;
-
-    pdf.setFontSize(10);
-    headers.forEach((header, index) => {
-      pdf.text(header, xPosition, yPosition);
-      xPosition += columnWidths[index];
-    });
-    yPosition += 10;
-
-    // Table rows
-    pdf.setFont('helvetica', 'normal');
-    items?.forEach((item: any, index: number) => {
-      if (yPosition > 250) {
-        pdf.addPage();
-        yPosition = margin;
-      }
-
-      xPosition = margin;
-      const rowData = [
-        (index + 1).toString(),
-        item.product_name,
-        item.quantity.toString(),
-        `R$ ${item.unit_price.toFixed(2)}`,
-        `R$ ${item.total_price.toFixed(2)}`
-      ];
-
-      rowData.forEach((data, colIndex) => {
-        const maxWidth = columnWidths[colIndex] - 5;
-        const lines = pdf.splitTextToSize(data, maxWidth);
-        pdf.text(lines, xPosition, yPosition);
-        xPosition += columnWidths[colIndex];
-      });
-      yPosition += 15;
-    });
-
-    // Totals
-    yPosition += 10;
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(`Subtotal: R$ ${proposal.subtotal.toFixed(2)}`, pageWidth - 80, yPosition);
-    yPosition += 10;
-    
-    if (proposal.discount_amount && proposal.discount_amount > 0) {
-      pdf.text(`Desconto: R$ ${proposal.discount_amount.toFixed(2)}`, pageWidth - 80, yPosition);
-      yPosition += 10;
-    }
-    
-    if (proposal.tax_amount && proposal.tax_amount > 0) {
-      pdf.text(`Impostos: R$ ${proposal.tax_amount.toFixed(2)}`, pageWidth - 80, yPosition);
-      yPosition += 10;
-    }
-    
-    pdf.text(`TOTAL: R$ ${proposal.total_amount.toFixed(2)}`, pageWidth - 80, yPosition);
-
-    // Footer
-    if (proposal.terms_and_conditions) {
-      yPosition += 20;
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('TERMOS E CONDIÇÕES', margin, yPosition);
-      yPosition += 10;
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(9);
-      const termsLines = pdf.splitTextToSize(proposal.terms_and_conditions, pageWidth - 2 * margin);
-      pdf.text(termsLines, margin, yPosition);
-    }
-
-    // Convert PDF to buffer
-    const pdfBuffer = pdf.output('arraybuffer');
-
-    // Send email with PDF attachment
+    // Prepare email content
     const defaultSubject = `Proposta Comercial - ${proposal.proposal_number}`;
     const defaultMessage = `
 Prezado(a) ${proposal.client?.name || 'Cliente'},
 
-Segue em anexo nossa proposta comercial conforme solicitado.
+Segue nossa proposta comercial conforme solicitado.
 
 **Detalhes da Proposta:**
 - Número: ${proposal.proposal_number}
@@ -178,39 +98,43 @@ Segue em anexo nossa proposta comercial conforme solicitado.
 - Valor Total: R$ ${proposal.total_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
 ${proposal.validity_days ? `- Validade: ${proposal.validity_days} dias` : ''}
 
+**Itens da Proposta:**
+${items?.map((item: any, index: number) => 
+  `${index + 1}. ${item.product_name} - Qtd: ${item.quantity} - Valor: R$ ${item.total_price.toFixed(2)}`
+).join('\n') || 'Nenhum item encontrado'}
+
 Ficamos à disposição para esclarecimentos.
 
 Atenciosamente,
 Equipe Comercial
     `.trim();
 
+    console.log('=== ENVIANDO EMAIL ===');
     const emailResponse = await resend.emails.send({
       from: 'Proposta Comercial <onboarding@resend.dev>',
       to: [recipient],
       subject: subject || defaultSubject,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">Proposta Comercial</h2>
-          <p style="white-space: pre-line;">${message || defaultMessage}</p>
-          <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
-          <p style="font-size: 12px; color: #666;">
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #333; margin-bottom: 20px;">Proposta Comercial</h2>
+          <div style="white-space: pre-line; line-height: 1.6;">${message || defaultMessage}</div>
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+          <p style="font-size: 12px; color: #666; margin: 0;">
             Esta é uma mensagem automática. Por favor, não responda a este email.
           </p>
         </div>
       `,
-      attachments: [
-        {
-          filename: `proposta-${proposal.proposal_number}.pdf`,
-          content: new Uint8Array(pdfBuffer),
-        },
-      ],
     });
 
     if (emailResponse.error) {
+      console.error('Erro na resposta do Resend:', emailResponse.error);
       throw new Error(`Erro ao enviar email: ${emailResponse.error.message}`);
     }
 
+    console.log('Email enviado com sucesso. ID:', emailResponse.data?.id);
+
     // Record the send in proposal_sends table
+    console.log('=== REGISTRANDO ENVIO ===');
     const { error: recordError } = await supabaseClient
       .from('proposal_sends')
       .insert({
@@ -221,11 +145,13 @@ Equipe Comercial
       });
 
     if (recordError) {
-      console.error('Error recording send:', recordError);
+      console.error('Erro ao registrar envio:', recordError);
       // Don't throw here as email was sent successfully
+    } else {
+      console.log('Envio registrado com sucesso');
     }
 
-    console.log('Email sent successfully:', emailResponse.data);
+    console.log('=== PROCESSO CONCLUÍDO COM SUCESSO ===');
 
     return new Response(
       JSON.stringify({ 
