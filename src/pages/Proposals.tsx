@@ -15,7 +15,8 @@ import {
   Calendar,
   DollarSign,
   Printer,
-  Mail
+  Mail,
+  MessageCircle
 } from 'lucide-react';
 import { useProposals, Proposal } from '@/hooks/useProposals';
 import { useProposalItems } from '@/hooks/useProposalItems';
@@ -25,7 +26,8 @@ import Navbar from '@/components/Navbar';
 import ProposalForm from '@/components/Proposals/ProposalForm';
 import DeleteProposalDialog from '@/components/Proposals/DeleteProposalDialog';
 import ProposalViewModal from '@/components/Proposals/ProposalViewModal';
-import ProposalSendDialog from '@/components/Proposals/ProposalSendDialog';
+import ProposalEmailDialog from '@/components/Proposals/ProposalEmailDialog';
+import ProposalWhatsAppDialog from '@/components/Proposals/ProposalWhatsAppDialog';
 import StatusSelector from '@/components/Proposals/StatusSelector';
 import { useNavigate } from 'react-router-dom';
 
@@ -39,7 +41,8 @@ const Proposals: React.FC = () => {
   const [editingProposal, setEditingProposal] = useState<Proposal | null>(null);
   const [deleteProposal, setDeleteProposal] = useState<Proposal | null>(null);
   const [viewingProposal, setViewingProposal] = useState<Proposal | null>(null);
-  const [sendingProposal, setSendingProposal] = useState<Proposal | null>(null);
+  const [emailingProposal, setEmailingProposal] = useState<Proposal | null>(null);
+  const [whatsappingProposal, setWhatsappingProposal] = useState<Proposal | null>(null);
 
   const filteredProposals = proposals.filter(proposal => {
     const matchesSearch = 
@@ -86,8 +89,12 @@ const Proposals: React.FC = () => {
     }
   };
 
-  const handleSendDialog = (proposal: Proposal) => {
-    setSendingProposal(proposal);
+  const handleEmailDialog = (proposal: Proposal) => {
+    setEmailingProposal(proposal);
+  };
+
+  const handleWhatsAppDialog = (proposal: Proposal) => {
+    setWhatsappingProposal(proposal);
   };
 
   const handleDirectPDFExport = async (proposal: Proposal) => {
@@ -361,10 +368,20 @@ const Proposals: React.FC = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleSendDialog(proposal)}
-                        title="Enviar Proposta"
+                        onClick={() => handleEmailDialog(proposal)}
+                        title="Enviar por Email"
+                        className="text-blue-600 border-blue-200 hover:bg-blue-50"
                       >
                         <Mail className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleWhatsAppDialog(proposal)}
+                        title="Enviar via WhatsApp"
+                        className="text-green-600 border-green-200 hover:bg-green-50"
+                      >
+                        <MessageCircle className="w-4 h-4" />
                       </Button>
                       <Button
                         variant="outline"
@@ -418,11 +435,21 @@ const Proposals: React.FC = () => {
         onClose={() => setViewingProposal(null)}
       />
 
-      <ProposalSendDialog
-        proposal={sendingProposal}
-        open={!!sendingProposal}
-        onClose={() => setSendingProposal(null)}
-      />
+      {emailingProposal && (
+        <ProposalEmailDialog
+          proposal={emailingProposal}
+          open={!!emailingProposal}
+          onClose={() => setEmailingProposal(null)}
+        />
+      )}
+
+      {whatsappingProposal && (
+        <ProposalWhatsAppDialog
+          proposal={whatsappingProposal}
+          open={!!whatsappingProposal}
+          onClose={() => setWhatsappingProposal(null)}
+        />
+      )}
     </div>
   );
 };
