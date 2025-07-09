@@ -11,7 +11,8 @@ import {
   BarChart3, 
   LogOut,
   Menu,
-  X
+  X,
+  Building2
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -26,6 +27,7 @@ const Navbar = () => {
     { href: '/propostas', label: 'Propostas', icon: FileText },
     { href: '/clientes', label: 'Clientes', icon: Users },
     { href: '/produtos', label: 'Produtos', icon: Package },
+    { href: '/configuracoes', label: 'Empresa', icon: Building2 },
   ];
 
   const isActive = (path: string) => {

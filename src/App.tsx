@@ -16,6 +16,7 @@ import Clients from "./pages/Clients";
 import Products from "./pages/Products";
 import Proposals from "./pages/Proposals";
 import ProposalView from "./pages/ProposalView";
+import CompanySettings from "./pages/CompanySettings";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const App = () => (
             } />
             
             {/* Catch-all route */}
+            <Route path="/configuracoes" element={<ProtectedRoute><CompanySettings /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
