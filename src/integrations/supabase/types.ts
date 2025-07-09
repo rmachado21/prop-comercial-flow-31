@@ -236,6 +236,50 @@ export type Database = {
           },
         ]
       }
+      proposal_sends: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          proposal_id: string
+          recipient: string
+          send_method: string
+          sent_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          proposal_id: string
+          recipient: string
+          send_method: string
+          sent_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          proposal_id?: string
+          recipient?: string
+          send_method?: string
+          sent_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_sends_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       proposals: {
         Row: {
           approved_at: string | null
