@@ -139,7 +139,13 @@ Ficamos à disposição para esclarecimentos!
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      
+      // Type cast the database response to match our interface
+      return (data || []).map(item => ({
+        ...item,
+        send_method: item.send_method as 'email' | 'whatsapp',
+        status: item.status as 'sent' | 'delivered' | 'failed'
+      }));
     } catch (error) {
       console.error('Error fetching proposal sends:', error);
       return [];
