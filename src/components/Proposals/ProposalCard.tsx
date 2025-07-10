@@ -12,7 +12,6 @@ interface ProposalCardProps {
   onView: (proposal: Proposal) => void;
   onEdit: (proposal: Proposal) => void;
   onDelete: (proposal: Proposal) => void;
-  onSend: (proposal: Proposal) => void;
   onEmail: (proposal: Proposal) => void;
   onWhatsApp: (proposal: Proposal) => void;
   onExportPDF: (proposal: Proposal) => void;
@@ -25,7 +24,6 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
   onView,
   onEdit,
   onDelete,
-  onSend,
   onEmail,
   onWhatsApp,
   onExportPDF,
@@ -121,17 +119,16 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                   currentStatus={proposal.status}
                   onStatusChange={(newStatus) => onStatusChange(proposal.id, newStatus)}
                 />
-                <ProposalActions
-                  proposal={proposal}
-                  isMobile={isMobile}
-                  onView={onView}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  onSend={onSend}
-                  onEmail={onEmail}
-                  onWhatsApp={onWhatsApp}
-                  onExportPDF={onExportPDF}
-                />
+            <ProposalActions
+              proposal={proposal}
+              isMobile={isMobile}
+              onView={onView}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onEmail={onEmail}
+              onWhatsApp={onWhatsApp}
+              onExportPDF={onExportPDF}
+            />
               </div>
             ) : (
               <>
@@ -145,7 +142,6 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                   onView={onView}
                   onEdit={onEdit}
                   onDelete={onDelete}
-                  onSend={onSend}
                   onEmail={onEmail}
                   onWhatsApp={onWhatsApp}
                   onExportPDF={onExportPDF}

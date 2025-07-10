@@ -21,7 +21,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 const Proposals: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { proposals, isLoading, sendProposal, updateProposalStatus } = useProposals();
+  const { proposals, isLoading, updateProposalStatus } = useProposals();
   const { exportToPDF } = useProposalExport();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -57,11 +57,6 @@ const Proposals: React.FC = () => {
     setShowForm(true);
   };
 
-  const handleSend = async (proposal: Proposal) => {
-    if (proposal.status === 'draft') {
-      await sendProposal(proposal.id);
-    }
-  };
 
   const handleEmailDialog = (proposal: Proposal) => {
     setEmailingProposal(proposal);
@@ -168,7 +163,6 @@ const Proposals: React.FC = () => {
                 onView={handleView}
                 onEdit={handleEdit}
                 onDelete={setDeleteProposal}
-                onSend={handleSend}
                 onEmail={handleEmailDialog}
                 onWhatsApp={handleWhatsAppDialog}
                 onExportPDF={handleDirectPDFExport}

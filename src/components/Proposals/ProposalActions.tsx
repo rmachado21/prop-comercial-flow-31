@@ -11,7 +11,6 @@ import {
   Eye,
   Edit,
   Trash2,
-  Send,
   Printer,
   Mail,
   MessageCircle,
@@ -25,7 +24,6 @@ interface ProposalActionsProps {
   onView: (proposal: Proposal) => void;
   onEdit: (proposal: Proposal) => void;
   onDelete: (proposal: Proposal) => void;
-  onSend: (proposal: Proposal) => void;
   onEmail: (proposal: Proposal) => void;
   onWhatsApp: (proposal: Proposal) => void;
   onExportPDF: (proposal: Proposal) => void;
@@ -37,7 +35,6 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
   onView,
   onEdit,
   onDelete,
-  onSend,
   onEmail,
   onWhatsApp,
   onExportPDF,
@@ -68,12 +65,6 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
             <Printer className="w-4 h-4 mr-2" />
             Exportar PDF
           </DropdownMenuItem>
-          {proposal.status === 'draft' && (
-            <DropdownMenuItem onClick={() => onSend(proposal)}>
-              <Send className="w-4 h-4 mr-2" />
-              Enviar Proposta
-            </DropdownMenuItem>
-          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => onEdit(proposal)}>
             <Edit className="w-4 h-4 mr-2" />
@@ -125,15 +116,6 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
       >
         <Printer className="w-4 h-4" />
       </Button>
-      {proposal.status === 'draft' && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onSend(proposal)}
-        >
-          <Send className="w-4 h-4" />
-        </Button>
-      )}
       <Button
         variant="outline"
         size="sm"
