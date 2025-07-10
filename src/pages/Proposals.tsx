@@ -16,8 +16,16 @@ import {
   DollarSign,
   Printer,
   Mail,
-  MessageCircle
+  MessageCircle,
+  MoreVertical
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { useProposals, Proposal } from '@/hooks/useProposals';
 import { useProposalItems } from '@/hooks/useProposalItems';
 import { useProposalExport } from '@/hooks/useProposalExport';
@@ -30,9 +38,11 @@ import ProposalEmailDialog from '@/components/Proposals/ProposalEmailDialog';
 import ProposalWhatsAppDialog from '@/components/Proposals/ProposalWhatsAppDialog';
 import StatusSelector from '@/components/Proposals/StatusSelector';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Proposals: React.FC = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { proposals, isLoading, sendProposal, updateProposalStatus } = useProposals();
   const { exportToPDF } = useProposalExport();
   const [searchTerm, setSearchTerm] = useState('');
@@ -164,7 +174,7 @@ const Proposals: React.FC = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
+        <div className={`grid gap-4 mb-8 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-6'}`}>
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -327,92 +337,170 @@ const Proposals: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <span className="text-commercial-500">Criada em:</span>
-                          <p className="font-medium">
-                            {new Date(proposal.created_at).toLocaleDateString('pt-BR')}
-                          </p>
+                      {isMobile ? (
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-commercial-500 text-sm">Valor Total:</span>
+                            <p className="font-bold text-lg text-commercial-900">
+                              R$ {proposal.total_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-commercial-500 text-sm">Criada em:</span>
+                            <p className="font-medium text-sm">
+                              {new Date(proposal.created_at).toLocaleDateString('pt-BR')}
+                            </p>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-commercial-500 text-sm">Validade:</span>
+                            <p className="font-medium text-sm">
+                              {proposal.validity_days ? `${proposal.validity_days} dias` : 'Indefinida'}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-commercial-500">Cliente:</span>
-                          <p className="font-medium">{proposal.client?.name}</p>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <span className="text-commercial-500">Criada em:</span>
+                            <p className="font-medium">
+                              {new Date(proposal.created_at).toLocaleDateString('pt-BR')}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-commercial-500">Cliente:</span>
+                            <p className="font-medium">{proposal.client?.name}</p>
+                          </div>
+                          <div>
+                            <span className="text-commercial-500">Validade:</span>
+                            <p className="font-medium">
+                              {proposal.validity_days ? `${proposal.validity_days} dias` : 'Indefinida'}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-commercial-500">Valor Total:</span>
+                            <p className="font-bold text-lg text-commercial-900">
+                              R$ {proposal.total_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-commercial-500">Validade:</span>
-                          <p className="font-medium">
-                            {proposal.validity_days ? `${proposal.validity_days} dias` : 'Indefinida'}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-commercial-500">Valor Total:</span>
-                          <p className="font-bold text-lg text-commercial-900">
-                            R$ {proposal.total_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </p>
-                        </div>
-                      </div>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 ml-4">
-                      <StatusSelector
-                        currentStatus={proposal.status}
-                        onStatusChange={(newStatus) => updateProposalStatus(proposal.id, newStatus)}
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleView(proposal)}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEmailDialog(proposal)}
-                        title="Enviar por Email"
-                        className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                      >
-                        <Mail className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleWhatsAppDialog(proposal)}
-                        title="Enviar via WhatsApp"
-                        className="text-green-600 border-green-200 hover:bg-green-50"
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDirectPDFExport(proposal)}
-                      >
-                        <Printer className="w-4 h-4" />
-                      </Button>
-                      {proposal.status === 'draft' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleSend(proposal)}
-                        >
-                          <Send className="w-4 h-4" />
-                        </Button>
+                      {isMobile ? (
+                        <div className="flex items-center gap-2">
+                          <StatusSelector
+                            currentStatus={proposal.status}
+                            onStatusChange={(newStatus) => updateProposalStatus(proposal.id, newStatus)}
+                          />
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <MoreVertical className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56">
+                              <DropdownMenuItem onClick={() => handleView(proposal)}>
+                                <Eye className="w-4 h-4 mr-2" />
+                                Visualizar
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => handleEmailDialog(proposal)}>
+                                <Mail className="w-4 h-4 mr-2" />
+                                Enviar por Email
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleWhatsAppDialog(proposal)}>
+                                <MessageCircle className="w-4 h-4 mr-2" />
+                                Enviar via WhatsApp
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDirectPDFExport(proposal)}>
+                                <Printer className="w-4 h-4 mr-2" />
+                                Exportar PDF
+                              </DropdownMenuItem>
+                              {proposal.status === 'draft' && (
+                                <DropdownMenuItem onClick={() => handleSend(proposal)}>
+                                  <Send className="w-4 h-4 mr-2" />
+                                  Enviar Proposta
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => handleEdit(proposal)}>
+                                <Edit className="w-4 h-4 mr-2" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => setDeleteProposal(proposal)}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      ) : (
+                        <>
+                          <StatusSelector
+                            currentStatus={proposal.status}
+                            onStatusChange={(newStatus) => updateProposalStatus(proposal.id, newStatus)}
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleView(proposal)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEmailDialog(proposal)}
+                            title="Enviar por Email"
+                            className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                          >
+                            <Mail className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleWhatsAppDialog(proposal)}
+                            title="Enviar via WhatsApp"
+                            className="text-green-600 border-green-200 hover:bg-green-50"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDirectPDFExport(proposal)}
+                          >
+                            <Printer className="w-4 h-4" />
+                          </Button>
+                          {proposal.status === 'draft' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleSend(proposal)}
+                            >
+                              <Send className="w-4 h-4" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(proposal)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setDeleteProposal(proposal)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </>
                       )}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(proposal)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setDeleteProposal(proposal)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
                     </div>
                   </div>
                 </CardContent>
