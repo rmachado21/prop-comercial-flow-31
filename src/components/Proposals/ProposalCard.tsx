@@ -31,16 +31,16 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
 }) => {
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      draft: { label: 'Rascunho', className: 'bg-gray-100 text-gray-800' },
-      sent: { label: 'Enviada', className: 'bg-blue-100 text-blue-800' },
-      approved: { label: 'Aprovada', className: 'bg-green-100 text-green-800' },
-      rejected: { label: 'Rejeitada', className: 'bg-red-100 text-red-800' },
-      expired: { label: 'Expirada', className: 'bg-yellow-100 text-yellow-800' },
-      nfe_issued: { label: 'NFe Emitida', className: 'bg-purple-100 text-purple-800' },
+      draft: { label: 'Rascunho', className: 'bg-[hsl(var(--status-draft))] text-[hsl(var(--status-draft-foreground))] border-[hsl(var(--status-draft))]' },
+      sent: { label: 'Enviada', className: 'bg-[hsl(var(--status-sent))] text-[hsl(var(--status-sent-foreground))] border-[hsl(var(--status-sent))]' },
+      approved: { label: 'Aprovada', className: 'bg-[hsl(var(--status-approved))] text-[hsl(var(--status-approved-foreground))] border-[hsl(var(--status-approved))]' },
+      rejected: { label: 'Rejeitada', className: 'bg-[hsl(var(--status-rejected))] text-[hsl(var(--status-rejected-foreground))] border-[hsl(var(--status-rejected))]' },
+      expired: { label: 'Expirada', className: 'bg-[hsl(var(--status-expired))] text-[hsl(var(--status-expired-foreground))] border-[hsl(var(--status-expired))]' },
+      nfe_issued: { label: 'NFe Emitida', className: 'bg-[hsl(var(--status-nfe-issued))] text-[hsl(var(--status-nfe-issued-foreground))] border-[hsl(var(--status-nfe-issued))]' },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
-    return <Badge className={config.className}>{config.label}</Badge>;
+    return <Badge variant="outline" className={config.className}>{config.label}</Badge>;
   };
 
   return (

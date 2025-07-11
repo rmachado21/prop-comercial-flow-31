@@ -1,5 +1,6 @@
 import React from 'react';
 import { Proposal } from '@/hooks/useProposals';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface StatusSelectorProps {
   currentStatus: Proposal['status'];
@@ -13,27 +14,45 @@ const StatusSelector: React.FC<StatusSelectorProps> = ({
   disabled = false 
 }) => {
   const statusOptions = [
-    { value: 'draft', label: 'Rascunho' },
-    { value: 'sent', label: 'Enviada' },
-    { value: 'approved', label: 'Aprovada' },
-    { value: 'rejected', label: 'Rejeitada' },
-    { value: 'expired', label: 'Expirada' },
-    { value: 'nfe_issued', label: 'NFe Emitida' },
+    { value: 'draft', label: 'Rascunho', color: 'hsl(var(--status-draft))', bgColor: 'hsl(var(--status-draft) / 0.1)' },
+    { value: 'sent', label: 'Enviada', color: 'hsl(var(--status-sent))', bgColor: 'hsl(var(--status-sent) / 0.1)' },
+    { value: 'approved', label: 'Aprovada', color: 'hsl(var(--status-approved))', bgColor: 'hsl(var(--status-approved) / 0.1)' },
+    { value: 'rejected', label: 'Rejeitada', color: 'hsl(var(--status-rejected))', bgColor: 'hsl(var(--status-rejected) / 0.1)' },
+    { value: 'expired', label: 'Expirada', color: 'hsl(var(--status-expired))', bgColor: 'hsl(var(--status-expired) / 0.1)' },
+    { value: 'nfe_issued', label: 'NFe Emitida', color: 'hsl(var(--status-nfe-issued))', bgColor: 'hsl(var(--status-nfe-issued) / 0.1)' },
   ] as const;
 
+  const currentOption = statusOptions.find(option => option.value === currentStatus) || statusOptions[0];
+
   return (
-    <select
-      value={currentStatus}
-      onChange={(e) => onStatusChange(e.target.value as Proposal['status'])}
+    <Select 
+      value={currentStatus} 
+      onValueChange={onStatusChange}
       disabled={disabled}
-      className="text-xs px-2 py-1 border border-commercial-200 rounded focus:outline-none focus:ring-1 focus:ring-primary-500 bg-background disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      {statusOptions.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
+      <SelectTrigger className="w-auto text-xs h-8 px-3 gap-2">
+        <div className="flex items-center gap-2">
+          <div 
+            className="w-2 h-2 rounded-full" 
+            style={{ backgroundColor: currentOption.color }}
+          />
+          <SelectValue placeholder="Status" />
+        </div>
+      </SelectTrigger>
+      <SelectContent>
+        {statusOptions.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            <div className="flex items-center gap-2">
+              <div 
+                className="w-2 h-2 rounded-full" 
+                style={{ backgroundColor: option.color }}
+              />
+              <span>{option.label}</span>
+            </div>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
 
