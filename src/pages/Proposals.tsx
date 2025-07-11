@@ -146,7 +146,7 @@ const Proposals: React.FC = () => {
         />
 
         {/* Proposals List */}
-        <div className="space-y-4">
+        <div className="space-y-2">
           {isLoading ? (
             <ProposalLoadingState />
           ) : filteredProposals.length === 0 ? (
