@@ -56,14 +56,6 @@ const ProposalViewModal: React.FC<ProposalViewModalProps> = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowExportDialog(true)}
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Exportar
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
                   onClick={() => window.print()}
                 >
                   <Printer className="w-4 h-4 mr-2" />
