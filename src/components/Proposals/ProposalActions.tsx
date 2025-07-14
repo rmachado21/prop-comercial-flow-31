@@ -83,11 +83,12 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
   }
 
   return (
-    <>
+    <div className="flex items-center gap-1.5 justify-center">
       <Button
         variant="outline"
         size="sm"
         onClick={() => onView(proposal)}
+        className="h-8 w-8 p-0"
       >
         <Eye className="w-4 h-4" />
       </Button>
@@ -96,7 +97,7 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
         size="sm"
         onClick={() => onEmail(proposal)}
         title="Enviar por Email"
-        className="text-blue-700 border-blue-300 hover:bg-blue-50 bg-blue-50/50"
+        className="text-blue-700 border-blue-300 hover:bg-blue-50 bg-blue-50/50 h-8 w-8 p-0"
       >
         <Mail className="w-4 h-4" />
       </Button>
@@ -105,7 +106,7 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
         size="sm"
         onClick={() => onWhatsApp(proposal)}
         title="Enviar via WhatsApp"
-        className="text-green-700 border-green-300 hover:bg-green-50 bg-green-50/50"
+        className="text-green-700 border-green-300 hover:bg-green-50 bg-green-50/50 h-8 w-8 p-0"
       >
         <MessageCircle className="w-4 h-4" />
       </Button>
@@ -113,6 +114,7 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
         variant="outline"
         size="sm"
         onClick={() => onExportPDF(proposal)}
+        className="h-8 w-8 p-0"
       >
         <Printer className="w-4 h-4" />
       </Button>
@@ -120,6 +122,7 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
         variant="outline"
         size="sm"
         onClick={() => onEdit(proposal)}
+        className="h-8 w-8 p-0"
       >
         <Edit className="w-4 h-4" />
       </Button>
@@ -127,10 +130,11 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
         variant="outline"
         size="sm"
         onClick={() => onDelete(proposal)}
+        className="h-8 w-8 p-0"
       >
         <Trash2 className="w-4 h-4" />
       </Button>
-    </>
+    </div>
   );
 };
 
