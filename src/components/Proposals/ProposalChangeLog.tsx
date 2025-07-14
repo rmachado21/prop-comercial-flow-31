@@ -19,11 +19,11 @@ const ProposalChangeLog: React.FC<ProposalChangeLogProps> = ({
 }) => {
   const getChangeIcon = (changeType: string) => {
     switch (changeType) {
-      case 'created':
+      case 'create':
         return <Plus className="w-4 h-4 text-green-500" />;
-      case 'updated':
+      case 'update':
         return <Edit className="w-4 h-4 text-blue-500" />;
-      case 'deleted':
+      case 'delete':
         return <Trash2 className="w-4 h-4 text-red-500" />;
       default:
         return <Clock className="w-4 h-4 text-gray-500" />;
@@ -32,11 +32,11 @@ const ProposalChangeLog: React.FC<ProposalChangeLogProps> = ({
 
   const getChangeTypeLabel = (changeType: string) => {
     switch (changeType) {
-      case 'created':
+      case 'create':
         return 'Criado';
-      case 'updated':
+      case 'update':
         return 'Atualizado';
-      case 'deleted':
+      case 'delete':
         return 'Removido';
       default:
         return 'Alterado';
@@ -126,11 +126,11 @@ const ProposalChangeLog: React.FC<ProposalChangeLogProps> = ({
                       {getChangeTypeLabel(change.change_type)}
                     </Badge>
                     <span className="text-sm font-medium">
-                      {getFieldLabel(change.field_changed)}
+                      {getFieldLabel(change.field_name)}
                     </span>
                   </div>
                   
-                  {change.change_type === 'updated' && (
+                  {change.change_type === 'update' && (
                     <div className="text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <span>De:</span>
@@ -147,7 +147,7 @@ const ProposalChangeLog: React.FC<ProposalChangeLogProps> = ({
                     </div>
                   )}
                   
-                  {change.change_type === 'created' && (
+                  {change.change_type === 'create' && (
                     <div className="text-sm text-muted-foreground">
                       <span>Valor:</span>
                       <code className="ml-2 px-2 py-1 bg-green-50 text-green-700 rounded text-xs">
