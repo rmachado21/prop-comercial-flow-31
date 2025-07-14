@@ -166,9 +166,61 @@ export const useProposalApproval = () => {
     }
   };
 
+  const submitClientComments = async (
+    token: string,
+    clientName: string,
+    clientEmail: string,
+    comments: string
+  ): Promise<{
+    success: boolean;
+    error?: string;
+  }> => {
+    try {
+      setIsApproving(true);
+
+      // Get client IP
+      const clientIP = await fetch('https://api.ipify.org?format=json')
+        .then(res => res.json())
+        .then(data => data.ip)
+        .catch(() => null);
+
+      // Call the submit comments function
+      const { data, error } = await supabase.functions.invoke('submit-client-comments', {
+        body: {
+          token,
+          clientName,
+          clientEmail,
+          comments,
+          clientIP,
+          userAgent: navigator.userAgent
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data.success) {
+        return { success: false, error: data.error || 'Erro ao enviar observações' };
+      }
+
+      toast.success('Observações enviadas com sucesso!');
+      return { success: true };
+
+    } catch (error: any) {
+      console.error('Error submitting comments:', error);
+      const errorMessage = error.message || 'Erro ao enviar observações';
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
   return {
     validateToken,
     approveProposal,
+    submitClientComments,
     isLoading,
     isApproving
   };

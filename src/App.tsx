@@ -17,6 +17,7 @@ import Products from "./pages/Products";
 import Proposals from "./pages/Proposals";
 import ProposalView from "./pages/ProposalView";
 import ProposalApproval from "./pages/ProposalApproval";
+import ProposalComments from "./pages/ProposalComments";
 import CompanySettings from "./pages/CompanySettings";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/aprovacao/:token" element={<ProposalApproval />} />
+            <Route path="/observacoes/:token" element={<ProposalComments />} />
             
             {/* Protected Routes */}
             <Route path="/" element={

@@ -112,6 +112,7 @@ Equipe Comercial
     // Generate approval token
     console.log('=== GERANDO TOKEN DE APROVAÇÃO ===');
     let approvalLink = null;
+    let commentsLink = null;
     try {
       const { data: tokenData, error: tokenError } = await supabaseClient
         .from('proposal_approval_tokens')
@@ -124,9 +125,10 @@ Equipe Comercial
       if (tokenError) {
         console.error('Erro ao criar token de aprovação:', tokenError);
       } else {
-        // Create approval link - adjust domain as needed
-        const baseUrl = Deno.env.get('SITE_URL') || 'https://your-domain.com';
+        // Create approval and comments links
+        const baseUrl = Deno.env.get('SITE_URL') || 'https://propostaonline.app.br';
         approvalLink = `${baseUrl}/aprovacao/${tokenData.token}`;
+        commentsLink = `${baseUrl}/observacoes/${tokenData.token}`;
         console.log('Token de aprovação criado:', tokenData.token);
       }
     } catch (error) {
@@ -135,32 +137,49 @@ Equipe Comercial
 
     console.log('=== ENVIANDO EMAIL ===');
     const emailResponse = await resend.emails.send({
-      from: 'Proposta Comercial <onboarding@resend.dev>',
+      from: 'Propostas Online <propostas@propostaonline.app.br>',
       to: [recipient],
       subject: subject || defaultSubject,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #333; margin-bottom: 20px;">Proposta Comercial</h2>
-          <div style="white-space: pre-line; line-height: 1.6;">${message || defaultMessage}</div>
-          
-          ${approvalLink ? `
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${approvalLink}" 
-               style="background-color: #22c55e; color: white; padding: 12px 24px; 
-                      text-decoration: none; border-radius: 6px; font-weight: bold;
-                      display: inline-block;">
-              🎯 Aprovar Proposta
-            </a>
-            <p style="font-size: 12px; color: #666; margin-top: 10px;">
-              Clique no botão acima para aprovar esta proposta rapidamente
-            </p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+          <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h2 style="color: #1f2937; margin-bottom: 20px; text-align: center;">Proposta Comercial</h2>
+            <div style="white-space: pre-line; line-height: 1.6; color: #374151;">${message || defaultMessage}</div>
+            
+            ${approvalLink && commentsLink ? `
+            <div style="text-align: center; margin: 40px 0;">
+              <div style="margin-bottom: 15px;">
+                <a href="${approvalLink}" 
+                   style="background-color: #22c55e; color: white; padding: 12px 24px; 
+                          text-decoration: none; border-radius: 6px; font-weight: bold;
+                          display: inline-block; margin-right: 10px;">
+                  ✅ Aprovar Proposta
+                </a>
+              </div>
+              <div>
+                <a href="${commentsLink}" 
+                   style="background-color: #3b82f6; color: white; padding: 12px 24px; 
+                          text-decoration: none; border-radius: 6px; font-weight: bold;
+                          display: inline-block;">
+                  💬 Adicionar Observações
+                </a>
+              </div>
+              <p style="font-size: 12px; color: #6b7280; margin-top: 15px;">
+                Clique em "Aprovar" para aceitar a proposta ou "Adicionar Observações" para enviar comentários e sugestões
+              </p>
+            </div>
+            ` : ''}
+            
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+            <div style="text-align: center;">
+              <p style="font-size: 12px; color: #6b7280; margin: 0;">
+                Esta é uma mensagem automática do sistema Proposta Online
+              </p>
+              <p style="font-size: 12px; color: #6b7280; margin: 5px 0 0 0;">
+                Por favor, não responda a este email.
+              </p>
+            </div>
           </div>
-          ` : ''}
-          
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-          <p style="font-size: 12px; color: #666; margin: 0;">
-            Esta é uma mensagem automática. Por favor, não responda a este email.
-          </p>
         </div>
       `,
     });

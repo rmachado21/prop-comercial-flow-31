@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Edit, Plus, Trash2 } from 'lucide-react';
+import { Clock, Edit, Plus, Trash2, MessageCircle } from 'lucide-react';
 import { ProposalChange } from '@/hooks/useProposalChanges';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -17,7 +17,12 @@ const ProposalChangeLog: React.FC<ProposalChangeLogProps> = ({
   isLoading, 
   lastUpdated 
 }) => {
-  const getChangeIcon = (changeType: string) => {
+  const getChangeIcon = (changeType: string, fieldName?: string) => {
+    // Special icon for client comments
+    if (fieldName === 'observacoes_cliente') {
+      return <MessageCircle className="w-4 h-4 text-blue-600" />;
+    }
+    
     switch (changeType) {
       case 'create':
         return <Plus className="w-4 h-4 text-green-500" />;
@@ -55,6 +60,7 @@ const ProposalChangeLog: React.FC<ProposalChangeLogProps> = ({
       'status': 'Status',
       'title': 'Título',
       'description': 'Descrição',
+      'observacoes_cliente': 'Observações do Cliente',
     };
     return fieldLabels[field] || field;
   };
@@ -118,12 +124,16 @@ const ProposalChangeLog: React.FC<ProposalChangeLogProps> = ({
             {changes.map((change) => (
               <div key={change.id} className="flex items-start gap-3 p-3 rounded-lg border">
                 <div className="flex-shrink-0 mt-1">
-                  {getChangeIcon(change.change_type)}
+                  {getChangeIcon(change.change_type, change.field_name)}
                 </div>
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline">
-                      {getChangeTypeLabel(change.change_type)}
+                    <Badge variant={
+                      change.field_name === 'observacoes_cliente' ? 'outline' :
+                      change.change_type === 'create' ? 'default' : 
+                      change.change_type === 'update' ? 'secondary' : 'destructive'
+                    }>
+                      {change.field_name === 'observacoes_cliente' ? 'Observações do Cliente' : getChangeTypeLabel(change.change_type)}
                     </Badge>
                     <span className="text-sm font-medium">
                       {getFieldLabel(change.field_name)}
@@ -132,18 +142,27 @@ const ProposalChangeLog: React.FC<ProposalChangeLogProps> = ({
                   
                   {change.change_type === 'update' && (
                     <div className="text-sm text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <span>De:</span>
-                        <code className="px-2 py-1 bg-red-50 text-red-700 rounded text-xs">
-                          {formatValue(change.old_value)}
-                        </code>
-                      </div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span>Para:</span>
-                        <code className="px-2 py-1 bg-green-50 text-green-700 rounded text-xs">
-                          {formatValue(change.new_value)}
-                        </code>
-                      </div>
+                      {change.field_name === 'observacoes_cliente' ? (
+                        <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded">
+                          <p className="text-blue-800 font-medium">Observações do Cliente:</p>
+                          <p className="text-blue-700 mt-1">{change.new_value}</p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2">
+                            <span>De:</span>
+                            <code className="px-2 py-1 bg-red-50 text-red-700 rounded text-xs">
+                              {formatValue(change.old_value)}
+                            </code>
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span>Para:</span>
+                            <code className="px-2 py-1 bg-green-50 text-green-700 rounded text-xs">
+                              {formatValue(change.new_value)}
+                            </code>
+                          </div>
+                        </>
+                      )}
                     </div>
                   )}
                   
