@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Grid, List } from 'lucide-react';
 import { useProposals, Proposal } from '@/hooks/useProposals';
 import { useProposalExport } from '@/hooks/useProposalExport';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,6 +25,7 @@ const Proposals: React.FC = () => {
   const { exportToPDF } = useProposalExport();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showForm, setShowForm] = useState(false);
   const [editingProposal, setEditingProposal] = useState<Proposal | null>(null);
   const [deleteProposal, setDeleteProposal] = useState<Proposal | null>(null);
@@ -141,12 +142,17 @@ const Proposals: React.FC = () => {
         <ProposalFilters
           searchTerm={searchTerm}
           statusFilter={statusFilter}
+          viewMode={viewMode}
           onSearchChange={setSearchTerm}
           onStatusChange={setStatusFilter}
+          onViewModeChange={setViewMode}
         />
 
         {/* Proposals List */}
-        <div className="space-y-2">
+        <div className={viewMode === 'grid' 
+          ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+          : 'space-y-2'
+        }>
           {isLoading ? (
             <ProposalLoadingState />
           ) : filteredProposals.length === 0 ? (
@@ -160,6 +166,7 @@ const Proposals: React.FC = () => {
                 key={proposal.id}
                 proposal={proposal}
                 isMobile={isMobile}
+                viewMode={viewMode}
                 onView={handleView}
                 onEdit={handleEdit}
                 onDelete={setDeleteProposal}
