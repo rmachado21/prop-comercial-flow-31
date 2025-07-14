@@ -82,44 +82,53 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
             </div>
           </div>
         ) : showGridLayout ? (
-          // Layout em grid para desktop
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <FileText className="w-5 h-5 text-primary-600" />
+          // Layout em grid para desktop - melhorado
+          <div className="h-48 flex flex-col">
+            {/* Header com status no canto superior direito */}
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-5 h-5 text-primary-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-lg text-commercial-900 truncate leading-tight">{proposal.title}</h3>
+                  <p className="text-sm text-commercial-500 truncate">{proposal.proposal_number}</p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-commercial-900 truncate">{proposal.title}</h3>
-                <p className="text-sm text-commercial-600 truncate">{proposal.proposal_number}</p>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-commercial-600">Cliente:</span>
-                <span className="text-commercial-900 truncate ml-2">{proposal.client?.name}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-commercial-600">Data:</span>
-                <span className="text-commercial-900">{new Date(proposal.created_at).toLocaleDateString('pt-BR')}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-commercial-600">Validade:</span>
-                <span className="text-commercial-900">{proposal.validity_days ? `${proposal.validity_days} dias` : 'Indefinida'}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-commercial-600">Valor:</span>
-                <span className="font-bold text-lg text-commercial-900">
-                  R$ {proposal.total_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </span>
+              <div className="flex-shrink-0">
+                <StatusSelector
+                  currentStatus={proposal.status}
+                  onStatusChange={(newStatus) => onStatusChange(proposal.id, newStatus)}
+                />
               </div>
             </div>
             
-            <div className="flex flex-col gap-2 pt-2 border-t border-commercial-200">
-              <StatusSelector
-                currentStatus={proposal.status}
-                onStatusChange={(newStatus) => onStatusChange(proposal.id, newStatus)}
-              />
+            {/* Corpo com informações em grid 2x2 */}
+            <div className="flex-1 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs text-commercial-500 mb-1">Cliente</p>
+                  <p className="text-sm text-commercial-900 truncate font-medium">{proposal.client?.name}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-commercial-500 mb-1">Data</p>
+                  <p className="text-sm text-commercial-900">{new Date(proposal.created_at).toLocaleDateString('pt-BR')}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-commercial-500 mb-1">Validade</p>
+                  <p className="text-sm text-commercial-900">{proposal.validity_days ? `${proposal.validity_days} dias` : 'Indefinida'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-commercial-500 mb-1">Valor</p>
+                  <p className="text-lg font-bold text-commercial-900">
+                    R$ {proposal.total_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Footer com ações */}
+            <div className="flex justify-end pt-3 border-t border-commercial-200">
               <ProposalActions
                 proposal={proposal}
                 isMobile={false}
