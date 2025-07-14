@@ -90,11 +90,10 @@ const handler = async (req: Request): Promise<Response> => {
     const defaultMessage = `
 Prezado(a) ${proposal.client?.name || 'Cliente'},
 
-Segue nossa proposta comercial conforme solicitado.
+Segue nossa proposta comercial conforme solicitado. PDF anexo.
 
 **Detalhes da Proposta:**
 - Número: ${proposal.proposal_number}
-- Título: ${proposal.title}
 - Valor Total: R$ ${proposal.total_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
 ${proposal.validity_days ? `- Validade: ${proposal.validity_days} dias` : ''}
 
@@ -137,7 +136,7 @@ Equipe Comercial
 
     console.log('=== ENVIANDO EMAIL ===');
     const emailResponse = await resend.emails.send({
-      from: 'Propostas Online <propostas@propostaonline.app.br>',
+      from: 'Propostas Online <noreply@propostaonline.app.br>',
       to: [recipient],
       subject: subject || defaultSubject,
       html: `
@@ -165,7 +164,7 @@ Equipe Comercial
                 </a>
               </div>
               <p style="font-size: 12px; color: #6b7280; margin-top: 15px;">
-                Clique em "Aprovar" para aceitar a proposta ou "Adicionar Observações" para enviar comentários e sugestões
+                Clique em "Aprovar" para aceitar a proposta ou "Adicionar Observações" para enviar comentários e/ou solicitar alterações.
               </p>
             </div>
             ` : ''}
@@ -173,7 +172,7 @@ Equipe Comercial
             <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
             <div style="text-align: center;">
               <p style="font-size: 12px; color: #6b7280; margin: 0;">
-                Esta é uma mensagem automática do sistema Proposta Online
+                Esta é uma mensagem automática do sistema Propostas Online
               </p>
               <p style="font-size: 12px; color: #6b7280; margin: 5px 0 0 0;">
                 Por favor, não responda a este email.
