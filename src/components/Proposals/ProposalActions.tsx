@@ -96,7 +96,7 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
         size="sm"
         onClick={() => onEmail(proposal)}
         title="Enviar por Email"
-        className="text-blue-600 border-blue-200 hover:bg-blue-50"
+        className="text-blue-600 border-blue-200 hover:bg-blue-50 bg-blue-50/50"
       >
         <Mail className="w-4 h-4" />
       </Button>
@@ -105,7 +105,7 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
         size="sm"
         onClick={() => onWhatsApp(proposal)}
         title="Enviar via WhatsApp"
-        className="text-green-600 border-green-200 hover:bg-green-50"
+        className="text-green-600 border-green-200 hover:bg-green-50 bg-green-50/50"
       >
         <MessageCircle className="w-4 h-4" />
       </Button>
