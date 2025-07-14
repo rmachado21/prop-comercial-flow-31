@@ -6,11 +6,14 @@ import { useToast } from '@/hooks/use-toast';
 export interface ProposalChange {
   id: string;
   proposal_id: string;
-  user_id: string;
-  field_changed: string;
-  old_value?: string;
-  new_value?: string;
-  change_type: 'created' | 'updated' | 'deleted';
+  field_name: string;
+  old_value: string | null;
+  new_value: string | null;
+  change_type: 'create' | 'update' | 'delete';
+  changed_by: string;
+  client_approval?: boolean;
+  client_ip?: string;
+  user_agent?: string;
   created_at: string;
 }
 

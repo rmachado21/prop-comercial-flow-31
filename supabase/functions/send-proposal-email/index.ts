@@ -109,6 +109,30 @@ Atenciosamente,
 Equipe Comercial
     `.trim();
 
+    // Generate approval token
+    console.log('=== GERANDO TOKEN DE APROVAÇÃO ===');
+    let approvalLink = null;
+    try {
+      const { data: tokenData, error: tokenError } = await supabaseClient
+        .from('proposal_approval_tokens')
+        .insert({
+          proposal_id: proposalId,
+        })
+        .select('token')
+        .single();
+
+      if (tokenError) {
+        console.error('Erro ao criar token de aprovação:', tokenError);
+      } else {
+        // Create approval link - adjust domain as needed
+        const baseUrl = Deno.env.get('SITE_URL') || 'https://your-domain.com';
+        approvalLink = `${baseUrl}/aprovacao/${tokenData.token}`;
+        console.log('Token de aprovação criado:', tokenData.token);
+      }
+    } catch (error) {
+      console.error('Erro ao gerar token:', error);
+    }
+
     console.log('=== ENVIANDO EMAIL ===');
     const emailResponse = await resend.emails.send({
       from: 'Proposta Comercial <onboarding@resend.dev>',
@@ -118,6 +142,21 @@ Equipe Comercial
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h2 style="color: #333; margin-bottom: 20px;">Proposta Comercial</h2>
           <div style="white-space: pre-line; line-height: 1.6;">${message || defaultMessage}</div>
+          
+          ${approvalLink ? `
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${approvalLink}" 
+               style="background-color: #22c55e; color: white; padding: 12px 24px; 
+                      text-decoration: none; border-radius: 6px; font-weight: bold;
+                      display: inline-block;">
+              🎯 Aprovar Proposta
+            </a>
+            <p style="font-size: 12px; color: #666; margin-top: 10px;">
+              Clique no botão acima para aprovar esta proposta rapidamente
+            </p>
+          </div>
+          ` : ''}
+          
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
           <p style="font-size: 12px; color: #666; margin: 0;">
             Esta é uma mensagem automática. Por favor, não responda a este email.
