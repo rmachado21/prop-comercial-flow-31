@@ -19,9 +19,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useProposals, Proposal } from '@/hooks/useProposals';
 import { useProposalItems } from '@/hooks/useProposalItems';
+import { useProposalChanges } from '@/hooks/useProposalChanges';
 import Navbar from '@/components/Navbar';
 import ClientSelector from '@/components/Proposals/ClientSelector';
 import ProposalItemForm from '@/components/Proposals/ProposalItemForm';
+import ProposalChangeLog from '@/components/Proposals/ProposalChangeLog';
 
 const proposalSchema = z.object({
   client_id: z.string().min(1, 'Cliente é obrigatório'),
@@ -41,6 +43,7 @@ interface ProposalFormProps {
 const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
   const { createProposal, updateProposal, sendProposal } = useProposals();
   const { items, addItem, updateItem, deleteItem } = useProposalItems(proposal?.id || null);
+  const { changes, isLoading: changesLoading, logMultipleChanges } = useProposalChanges(proposal?.id || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showItemForm, setShowItemForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -93,7 +96,63 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
       };
 
       if (proposal) {
+        // Log changes for existing proposal
+        const changesList = [];
+        
+        if (proposal.client_id !== data.client_id) {
+          changesList.push({
+            field: 'client_id',
+            oldValue: proposal.client_id,
+            newValue: data.client_id,
+          });
+        }
+        
+        if (proposal.validity_days !== data.validity_days) {
+          changesList.push({
+            field: 'validity_days',
+            oldValue: proposal.validity_days,
+            newValue: data.validity_days,
+          });
+        }
+        
+        if (proposal.discount_percentage !== data.discount_percentage) {
+          changesList.push({
+            field: 'discount_percentage',
+            oldValue: proposal.discount_percentage,
+            newValue: data.discount_percentage,
+          });
+        }
+        
+        if (proposal.notes !== data.notes) {
+          changesList.push({
+            field: 'notes',
+            oldValue: proposal.notes,
+            newValue: data.notes,
+          });
+        }
+        
+        if (proposal.terms_and_conditions !== data.terms_and_conditions) {
+          changesList.push({
+            field: 'terms_and_conditions',
+            oldValue: proposal.terms_and_conditions,
+            newValue: data.terms_and_conditions,
+          });
+        }
+        
+        if (proposal.total_amount !== totalAmount) {
+          changesList.push({
+            field: 'total_amount',
+            oldValue: proposal.total_amount,
+            newValue: totalAmount,
+          });
+        }
+
         await updateProposal(proposal.id, proposalData);
+        
+        // Log changes if any
+        if (changesList.length > 0) {
+          await logMultipleChanges(proposal.id, changesList);
+        }
       } else {
         const newProposal = await createProposal(proposalData);
         if (newProposal && tempItems.length > 0) {
@@ -212,6 +271,15 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Form */}
             <div className="lg:col-span-2 space-y-6">
+              
+              {/* Change Log - Only show for existing proposals */}
+              {proposal && (
+                <ProposalChangeLog
+                  changes={changes}
+                  isLoading={changesLoading}
+                  lastUpdated={proposal.updated_at}
+                />
+              )}
               {/* Basic Information */}
               <Card>
                 <CardHeader>
