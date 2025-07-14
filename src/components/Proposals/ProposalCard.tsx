@@ -29,19 +29,6 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
   onExportPDF,
   onStatusChange,
 }) => {
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      draft: { label: 'Rascunho', className: 'bg-[hsl(var(--status-draft))] text-[hsl(var(--status-draft-foreground))] border-[hsl(var(--status-draft))]' },
-      sent: { label: 'Enviada', className: 'bg-[hsl(var(--status-sent))] text-[hsl(var(--status-sent-foreground))] border-[hsl(var(--status-sent))]' },
-      approved: { label: 'Aprovada', className: 'bg-[hsl(var(--status-approved))] text-[hsl(var(--status-approved-foreground))] border-[hsl(var(--status-approved))]' },
-      rejected: { label: 'Rejeitada', className: 'bg-[hsl(var(--status-rejected))] text-[hsl(var(--status-rejected-foreground))] border-[hsl(var(--status-rejected))]' },
-      expired: { label: 'Expirada', className: 'bg-[hsl(var(--status-expired))] text-[hsl(var(--status-expired-foreground))] border-[hsl(var(--status-expired))]' },
-      nfe_issued: { label: 'NFe Emitida', className: 'bg-[hsl(var(--status-nfe-issued))] text-[hsl(var(--status-nfe-issued-foreground))] border-[hsl(var(--status-nfe-issued))]' },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
-    return <Badge variant="outline" className={config.className}>{config.label}</Badge>;
-  };
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -55,10 +42,7 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                   <FileText className="w-4 h-4 text-primary-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-sm text-commercial-900 truncate">{proposal.title}</h3>
-                    {getStatusBadge(proposal.status)}
-                  </div>
+                  <h3 className="font-semibold text-sm text-commercial-900 truncate mb-1">{proposal.title}</h3>
                   <p className="text-xs text-commercial-600 truncate">
                     {proposal.proposal_number} • {proposal.client?.name}
                   </p>
@@ -101,10 +85,7 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
               </div>
               
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-1">
-                  <h3 className="font-semibold text-commercial-900 truncate">{proposal.title}</h3>
-                  {getStatusBadge(proposal.status)}
-                </div>
+                <h3 className="font-semibold text-commercial-900 truncate mb-1">{proposal.title}</h3>
                 <div className="flex items-center gap-4 text-sm text-commercial-600">
                   <span>{proposal.proposal_number}</span>
                   <span>•</span>
