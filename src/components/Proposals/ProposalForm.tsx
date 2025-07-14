@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { 
   ArrowLeft, 
-  Printer, 
+  Save, 
   Send, 
   Plus,
   Trash2,
@@ -27,7 +27,6 @@ const proposalSchema = z.object({
   client_id: z.string().min(1, 'Cliente é obrigatório'),
   validity_days: z.number().min(1, 'Validade deve ser maior que 0').optional(),
   discount_percentage: z.number().min(0).max(100).optional(),
-  tax_percentage: z.number().min(0).max(100).optional(),
   notes: z.string().optional(),
   terms_and_conditions: z.string().optional(),
 });
@@ -53,7 +52,6 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
       client_id: proposal?.client_id || '',
       validity_days: proposal?.validity_days || 30,
       discount_percentage: proposal?.discount_percentage || 0,
-      tax_percentage: proposal?.tax_percentage || 0,
       notes: proposal?.notes || '',
       terms_and_conditions: proposal?.terms_and_conditions || '',
     },
@@ -66,7 +64,6 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
         client_id: proposal.client_id || '',
         validity_days: proposal.validity_days || 30,
         discount_percentage: proposal.discount_percentage || 0,
-        tax_percentage: proposal.tax_percentage || 0,
         notes: proposal.notes || '',
         terms_and_conditions: proposal.terms_and_conditions || '',
       });
@@ -77,8 +74,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
   const currentItems = proposal ? items : tempItems;
   const subtotal = currentItems.reduce((sum, item) => sum + item.total_price, 0);
   const discountAmount = (subtotal * (form.watch('discount_percentage') || 0)) / 100;
-  const taxAmount = ((subtotal - discountAmount) * (form.watch('tax_percentage') || 0)) / 100;
-  const totalAmount = subtotal - discountAmount + taxAmount;
+  const totalAmount = subtotal - discountAmount;
 
   const onSubmit = async (data: ProposalFormData) => {
     setIsSubmitting(true);
@@ -89,7 +85,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
         description: proposal?.description || null, // Keep existing description for existing proposals
         subtotal,
         discount_amount: discountAmount,
-        tax_amount: taxAmount,
+        tax_amount: 0,
         total_amount: totalAmount,
         expiry_date: data.validity_days 
           ? new Date(Date.now() + data.validity_days * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -235,7 +231,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="validity_days">Validade (dias)</Label>
                       <Input
@@ -252,16 +248,6 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
                         type="number"
                         step="0.01"
                         {...form.register('discount_percentage', { valueAsNumber: true })}
-                        placeholder="0"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="tax_percentage">Impostos (%)</Label>
-                      <Input
-                        id="tax_percentage"
-                        type="number"
-                        step="0.01"
-                        {...form.register('tax_percentage', { valueAsNumber: true })}
                         placeholder="0"
                       />
                     </div>
@@ -413,16 +399,6 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
                       </div>
                     )}
                     
-                    {form.watch('tax_percentage') > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-commercial-600">
-                          Impostos ({form.watch('tax_percentage')}%):
-                        </span>
-                        <span className="font-medium">
-                          R$ {taxAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </span>
-                      </div>
-                    )}
                     
                     <hr />
                     <div className="flex justify-between">
@@ -439,7 +415,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
                       disabled={isSubmitting}
                       className="w-full"
                     >
-                      <Printer className="w-4 h-4 mr-2" />
+                      <Save className="w-4 h-4 mr-2" />
                       {proposal ? 'Atualizar' : 'Salvar'} Rascunho
                     </Button>
                   </div>
