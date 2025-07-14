@@ -169,7 +169,6 @@ const Proposals: React.FC = () => {
                 viewMode={viewMode}
                 onView={handleView}
                 onEdit={handleEdit}
-                onDelete={setDeleteProposal}
                 onEmail={handleEmailDialog}
                 onWhatsApp={handleWhatsAppDialog}
                 onExportPDF={handleDirectPDFExport}

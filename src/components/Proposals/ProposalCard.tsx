@@ -12,7 +12,6 @@ interface ProposalCardProps {
   viewMode: 'grid' | 'list';
   onView: (proposal: Proposal) => void;
   onEdit: (proposal: Proposal) => void;
-  onDelete: (proposal: Proposal) => void;
   onEmail: (proposal: Proposal) => void;
   onWhatsApp: (proposal: Proposal) => void;
   onExportPDF: (proposal: Proposal) => void;
@@ -25,7 +24,6 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
   viewMode,
   onView,
   onEdit,
-  onDelete,
   onEmail,
   onWhatsApp,
   onExportPDF,
@@ -74,7 +72,6 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                 isMobile={isMobile}
                 onView={onView}
                 onEdit={onEdit}
-                onDelete={onDelete}
                 onEmail={onEmail}
                 onWhatsApp={onWhatsApp}
                 onExportPDF={onExportPDF}
@@ -134,7 +131,6 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                 isMobile={false}
                 onView={onView}
                 onEdit={onEdit}
-                onDelete={onDelete}
                 onEmail={onEmail}
                 onWhatsApp={onWhatsApp}
                 onExportPDF={onExportPDF}
@@ -179,7 +175,6 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                 isMobile={isMobile}
                 onView={onView}
                 onEdit={onEdit}
-                onDelete={onDelete}
                 onEmail={onEmail}
                 onWhatsApp={onWhatsApp}
                 onExportPDF={onExportPDF}

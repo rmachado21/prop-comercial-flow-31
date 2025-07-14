@@ -10,7 +10,6 @@ import {
 import {
   Eye,
   Edit,
-  Trash2,
   Printer,
   Mail,
   MessageCircle,
@@ -23,7 +22,6 @@ interface ProposalActionsProps {
   isMobile: boolean;
   onView: (proposal: Proposal) => void;
   onEdit: (proposal: Proposal) => void;
-  onDelete: (proposal: Proposal) => void;
   onEmail: (proposal: Proposal) => void;
   onWhatsApp: (proposal: Proposal) => void;
   onExportPDF: (proposal: Proposal) => void;
@@ -34,7 +32,6 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
   isMobile,
   onView,
   onEdit,
-  onDelete,
   onEmail,
   onWhatsApp,
   onExportPDF,
@@ -69,13 +66,6 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
           <DropdownMenuItem onClick={() => onEdit(proposal)}>
             <Edit className="w-4 h-4 mr-2" />
             Editar
-          </DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={() => onDelete(proposal)}
-            className="text-red-600"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Excluir
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -125,14 +115,6 @@ const ProposalActions: React.FC<ProposalActionsProps> = ({
         className="h-8 w-8 p-0"
       >
         <Edit className="w-4 h-4" />
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => onDelete(proposal)}
-        className="h-8 w-8 p-0"
-      >
-        <Trash2 className="w-4 h-4" />
       </Button>
     </div>
   );
