@@ -271,15 +271,6 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Form */}
             <div className="lg:col-span-2 space-y-6">
-              
-              {/* Change Log - Only show for existing proposals */}
-              {proposal && (
-                <ProposalChangeLog
-                  changes={changes}
-                  isLoading={changesLoading}
-                  lastUpdated={proposal.updated_at}
-                />
-              )}
               {/* Basic Information */}
               <Card>
                 <CardHeader>
@@ -442,7 +433,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
             </div>
 
             {/* Right Column - Summary */}
-            <div>
+            <div className="space-y-6">
               <Card className="sticky top-4">
                 <CardHeader>
                   <CardTitle>Resumo Financeiro</CardTitle>
@@ -489,6 +480,15 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
                   </div>
                 </CardContent>
               </Card>
+              
+              {/* Change Log - Only show for existing proposals */}
+              {proposal && (
+                <ProposalChangeLog
+                  changes={changes}
+                  isLoading={changesLoading}
+                  lastUpdated={proposal.updated_at}
+                />
+              )}
             </div>
           </div>
         </form>
