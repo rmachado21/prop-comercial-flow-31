@@ -24,6 +24,7 @@ import Navbar from '@/components/Navbar';
 import ClientSelector from '@/components/Proposals/ClientSelector';
 import ProposalItemForm from '@/components/Proposals/ProposalItemForm';
 import ProposalChangeLog from '@/components/Proposals/ProposalChangeLog';
+import { getStatusConfig } from '@/lib/statusConfig';
 
 const proposalSchema = z.object({
   client_id: z.string().min(1, 'Cliente é obrigatório'),
@@ -255,13 +256,13 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
             {proposal && (
               <p className="text-commercial-600 mt-1">
                 {proposal.proposal_number} • 
-                <Badge className="ml-2">
-                  {proposal.status === 'draft' ? 'Rascunho' : 
-                   proposal.status === 'sent' ? 'Enviada' :
-                   proposal.status === 'approved' ? 'Aprovada' :
-                   proposal.status === 'rejected' ? 'Rejeitada' : 
-                   proposal.status === 'nfe_issued' ? 'NFe Emitida' : 'Expirada'}
-                </Badge>
+                <span className={`
+                  inline-flex items-center rounded-full px-3 py-1 text-xs font-medium
+                  ${getStatusConfig(proposal.status).bgClass} 
+                  ${getStatusConfig(proposal.status).textClass}
+                `}>
+                  {getStatusConfig(proposal.status).label}
+                </span>
               </p>
             )}
           </div>

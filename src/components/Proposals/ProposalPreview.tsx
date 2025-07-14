@@ -28,7 +28,7 @@ const ProposalPreview: React.FC<ProposalPreviewProps> = ({
       draft: 'Rascunho',
       sent: 'Enviada',
       approved: 'Aprovada',
-      rejected: 'Rejeitada',
+      rejected: 'Cancelada',
       expired: 'Expirada',
     };
     return statusConfig[status as keyof typeof statusConfig] || status;

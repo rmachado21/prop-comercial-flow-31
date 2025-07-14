@@ -49,7 +49,7 @@ const ProposalView: React.FC = () => {
       draft: { label: 'Rascunho', className: 'bg-gray-100 text-gray-800' },
       sent: { label: 'Enviada', className: 'bg-blue-100 text-blue-800' },
       approved: { label: 'Aprovada', className: 'bg-green-100 text-green-800' },
-      rejected: { label: 'Rejeitada', className: 'bg-red-100 text-red-800' },
+      rejected: { label: 'Cancelada', className: 'bg-red-100 text-red-800' },
       expired: { label: 'Expirada', className: 'bg-yellow-100 text-yellow-800' },
     };
 

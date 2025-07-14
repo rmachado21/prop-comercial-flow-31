@@ -34,7 +34,7 @@ const StatusSelector: React.FC<StatusSelectorProps> = ({
     },
     { 
       value: 'rejected', 
-      label: 'Rejeitada', 
+      label: 'Cancelada', 
       bgClass: 'bg-[hsl(var(--status-rejected))]',
       textClass: 'text-[hsl(var(--status-rejected-foreground))]'
     },

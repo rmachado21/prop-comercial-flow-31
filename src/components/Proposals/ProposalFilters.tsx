@@ -47,7 +47,7 @@ const ProposalFilters: React.FC<ProposalFiltersProps> = ({
                 <option value="draft">Rascunho</option>
                 <option value="sent">Enviada</option>
                 <option value="approved">Aprovada</option>
-                <option value="rejected">Rejeitada</option>
+                <option value="rejected">Cancelada</option>
                 <option value="expired">Expirada</option>
                 <option value="nfe_issued">NFe Emitida</option>
               </select>
