@@ -24,6 +24,7 @@ interface Company {
   state: string;
   zip_code: string;
   logo_url: string;
+  proposal_start_number: number;
 }
 
 const CompanySettings = () => {
@@ -44,6 +45,7 @@ const CompanySettings = () => {
     state: '',
     zip_code: '',
     logo_url: '',
+    proposal_start_number: 1,
   });
 
   useEffect(() => {
@@ -65,7 +67,10 @@ const CompanySettings = () => {
       }
 
       if (data) {
-        setCompany(data);
+        setCompany({
+          ...data,
+          proposal_start_number: (data as any).proposal_start_number || 1,
+        });
       }
     } catch (error) {
       console.error('Error loading company data:', error);
@@ -100,7 +105,10 @@ const CompanySettings = () => {
           .single();
 
         if (error) throw error;
-        setCompany(data);
+        setCompany({
+          ...data,
+          proposal_start_number: (data as any).proposal_start_number || 1,
+        });
       }
 
       toast({
@@ -288,6 +296,23 @@ const CompanySettings = () => {
                   onChange={(e) => setCompany(prev => ({ ...prev, website: e.target.value }))}
                   placeholder="https://www.empresa.com"
                 />
+              </div>
+              
+              <Separator className="my-4" />
+              
+              <div>
+                <Label htmlFor="proposal_start_number">Nº da proposta começa em:</Label>
+                <Input
+                  id="proposal_start_number"
+                  type="number"
+                  min="1"
+                  value={company.proposal_start_number}
+                  onChange={(e) => setCompany(prev => ({ ...prev, proposal_start_number: parseInt(e.target.value) || 1 }))}
+                  placeholder="1"
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Define o número inicial para as propostas. Formato: {new Date().getFullYear()}-{company.proposal_start_number}
+                </p>
               </div>
             </CardContent>
           </Card>
