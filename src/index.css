@@ -50,6 +50,8 @@
     --status-expired-foreground: 25 95% 15%;
     --status-nfe-issued: 271 81% 56%;
     --status-nfe-issued-foreground: 271 81% 15%;
+    --status-contested: 14 91% 43%;
+    --status-contested-foreground: 14 91% 15%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -95,6 +97,8 @@
     --status-expired-foreground: 25 20% 95%;
     --status-nfe-issued: 271 81% 66%;
     --status-nfe-issued-foreground: 271 20% 95%;
+    --status-contested: 14 91% 53%;
+    --status-contested-foreground: 14 20% 95%;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
