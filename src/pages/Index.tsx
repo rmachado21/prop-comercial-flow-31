@@ -6,19 +6,17 @@ import StatsCard from '@/components/Dashboard/StatsCard';
 import ActivityFeed from '@/components/Dashboard/ActivityFeed';
 import QuickActions from '@/components/Dashboard/QuickActions';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   FileText, 
   Users, 
-  Package, 
   TrendingUp,
-  DollarSign,
-  Clock,
-  Target,
-  Loader2
+  DollarSign
 } from 'lucide-react';
 
 const Index = () => {
   const dashboardStats = useDashboardStats();
+  const isMobile = useIsMobile();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -49,13 +47,6 @@ const Index = () => {
       trend: dashboardStats.newClientsThisMonth > 0 ? { value: `+${dashboardStats.newClientsThisMonth}`, isPositive: true } : undefined
     },
     {
-      title: 'Produtos',
-      value: dashboardStats.totalProducts,
-      subtitle: `${dashboardStats.totalCategories} categorias`,
-      icon: Package,
-      iconColor: 'text-orange-600'
-    },
-    {
       title: 'Taxa de Conversão',
       value: formatPercentage(dashboardStats.conversionRate),
       subtitle: 'Este mês',
@@ -70,13 +61,6 @@ const Index = () => {
       icon: DollarSign,
       iconColor: 'text-emerald-600',
       trend: dashboardStats.revenueThisMonth > 0 ? { value: 'Em crescimento', isPositive: true } : undefined
-    },
-    {
-      title: 'Propostas Pendentes',
-      value: dashboardStats.pendingProposals,
-      subtitle: 'Aguardando resposta',
-      icon: Clock,
-      iconColor: 'text-yellow-600'
     }
   ];
 
@@ -94,22 +78,22 @@ const Index = () => {
 
         {/* Stats Grid */}
         {dashboardStats.loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {[...Array(6)].map((_, index) => (
-              <div key={index} className="bg-white rounded-lg card-shadow p-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-8">
+            {[...Array(4)].map((_, index) => (
+              <div key={index} className="bg-white rounded-lg card-shadow p-3 lg:p-6">
                 <div className="animate-pulse">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="h-4 bg-commercial-200 rounded w-24"></div>
-                    <div className="h-4 bg-commercial-200 rounded w-4"></div>
+                  <div className="flex items-center justify-between mb-2 lg:mb-4">
+                    <div className="h-3 lg:h-4 bg-commercial-200 rounded w-16 lg:w-24"></div>
+                    <div className="h-3 lg:h-4 bg-commercial-200 rounded w-3 lg:w-4"></div>
                   </div>
-                  <div className="h-8 bg-commercial-200 rounded w-16 mb-2"></div>
-                  <div className="h-3 bg-commercial-200 rounded w-20"></div>
+                  <div className="h-6 lg:h-8 bg-commercial-200 rounded w-12 lg:w-16 mb-1 lg:mb-2"></div>
+                  <div className="h-2 lg:h-3 bg-commercial-200 rounded w-16 lg:w-20"></div>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-8">
             {stats.map((stat, index) => (
               <StatsCard
                 key={index}
@@ -119,6 +103,7 @@ const Index = () => {
                 icon={stat.icon}
                 iconColor={stat.iconColor}
                 trend={stat.trend}
+                compact={isMobile}
               />
             ))}
           </div>
@@ -136,11 +121,21 @@ const Index = () => {
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-commercial-600">Propostas Este Mês</span>
-                  <span className="font-medium">{dashboardStats.proposalsThisMonth}</span>
+                  <span className="text-sm text-commercial-600">Produtos</span>
+                  <span className="font-medium">{dashboardStats.totalProducts}</span>
                 </div>
-                <div className="w-full bg-commercial-200 rounded-full h-2">
-                  <div className="bg-primary-600 h-2 rounded-full" style={{ width: `${Math.min((dashboardStats.proposalsThisMonth / 30) * 100, 100)}%` }}></div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-commercial-500">Categorias</span>
+                  <span className="text-sm text-commercial-600">{dashboardStats.totalCategories}</span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-commercial-600">Propostas Pendentes</span>
+                  <span className="font-medium">{dashboardStats.pendingProposals}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-commercial-500">Aguardando resposta</span>
+                  <span className="text-sm text-commercial-600">Este mês</span>
                 </div>
                 
                 <div className="flex items-center justify-between">
@@ -149,14 +144,6 @@ const Index = () => {
                 </div>
                 <div className="w-full bg-commercial-200 rounded-full h-2">
                   <div className="bg-green-600 h-2 rounded-full" style={{ width: `${dashboardStats.proposalsThisMonth > 0 ? (dashboardStats.approvedProposalsThisMonth / dashboardStats.proposalsThisMonth) * 100 : 0}%` }}></div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-commercial-600">Receita Este Mês</span>
-                  <span className="font-medium">{formatCurrency(dashboardStats.revenueThisMonth)}</span>
-                </div>
-                <div className="w-full bg-commercial-200 rounded-full h-2">
-                  <div className="bg-emerald-600 h-2 rounded-full" style={{ width: `${Math.min(dashboardStats.monthlyGoalPercentage, 100)}%` }}></div>
                 </div>
               </div>
             </div>
