@@ -134,6 +134,12 @@ const ProposalPDFTemplate: React.FC<ProposalPDFTemplateProps> = ({
               <span className="font-semibold text-gray-700">E-mail:</span>
               <div className="text-gray-900">{proposal.client?.email || 'N/A'}</div>
             </div>
+            {proposal.client?.contact_name && (
+              <div>
+                <span className="font-semibold text-gray-700">Contato:</span>
+                <div className="text-gray-900">{proposal.client.contact_name}</div>
+              </div>
+            )}
             <div>
               <span className="font-semibold text-gray-700">Telefone:</span>
               <div className="text-gray-900">{proposal.client?.phone || 'N/A'}</div>

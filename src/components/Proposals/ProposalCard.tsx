@@ -143,16 +143,16 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                   <span>{formatCNPJ(proposal.client.cnpj)}</span>
                 </div>
               )}
+               {proposal.client?.phone && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Phone className="w-4 h-4" />
+                  <span>{formatPhone(proposal.client.phone)}</span>
+                </div>
+              )}
               {proposal.client?.contact_name && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <User className="w-4 h-4" />
                   <span>{proposal.client.contact_name}</span>
-                </div>
-              )}
-              {proposal.client?.phone && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Phone className="w-4 h-4" />
-                  <span>{formatPhone(proposal.client.phone)}</span>
                 </div>
               )}
               {getClientLocation() && (
@@ -216,15 +216,6 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                       </div>
                     </>
                   )}
-                  {proposal.client?.contact_name && (
-                    <>
-                      <span>•</span>
-                      <div className="flex items-center gap-1">
-                        <User className="w-3 h-3" />
-                        <span>{proposal.client.contact_name}</span>
-                      </div>
-                    </>
-                  )}
                   {getClientLocation() && (
                     <>
                       <span>•</span>
@@ -247,6 +238,15 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                       <div className="flex items-center gap-1">
                         <Phone className="w-3 h-3" />
                         <span>{formatPhone(proposal.client.phone)}</span>
+                      </div>
+                    </>
+                  )}
+                  {proposal.client?.contact_name && (
+                    <>
+                      <span>•</span>
+                      <div className="flex items-center gap-1">
+                        <User className="w-3 h-3" />
+                        <span>{proposal.client.contact_name}</span>
                       </div>
                     </>
                   )}
