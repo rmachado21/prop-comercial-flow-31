@@ -3,6 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useRole } from '@/hooks/useRole';
 import { Button } from '@/components/ui/button';
 import { 
   FileText, 
@@ -12,13 +13,15 @@ import {
   LogOut,
   Menu,
   X,
-  Settings
+  Settings,
+  Shield
 } from 'lucide-react';
 import { useState } from 'react';
 
 const Navbar = () => {
   const { logout } = useAuth();
   const { profile } = useUserProfile();
+  const { isSuperAdmin } = useRole();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -27,6 +30,7 @@ const Navbar = () => {
     { href: '/propostas', label: 'Propostas', icon: FileText },
     { href: '/clientes', label: 'Clientes', icon: Users },
     { href: '/produtos', label: 'Produtos', icon: Package },
+    ...(isSuperAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield }] : []),
   ];
 
   const isActive = (path: string) => {

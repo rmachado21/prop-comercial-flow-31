@@ -19,6 +19,8 @@ import ProposalView from "./pages/ProposalView";
 import ProposalApproval from "./pages/ProposalApproval";
 import ProposalComments from "./pages/ProposalComments";
 import CompanySettings from "./pages/CompanySettings";
+import Admin from "./pages/Admin";
+import AdminRoute from "./components/AdminRoute";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +67,12 @@ const App = () => (
               <ProtectedRoute>
                 <ProposalView />
               </ProtectedRoute>
+            } />
+
+            <Route path="/admin" element={
+              <AdminRoute>
+                <Admin />
+              </AdminRoute>
             } />
             
             {/* Catch-all route */}
