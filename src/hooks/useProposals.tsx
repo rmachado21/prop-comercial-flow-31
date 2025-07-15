@@ -31,6 +31,10 @@ export interface Proposal {
     name: string;
     email: string | null;
     phone: string | null;
+    cnpj: string | null;
+    contact_name: string | null;
+    city: string | null;
+    state: string | null;
   };
 }
 
@@ -69,7 +73,7 @@ export const useProposals = () => {
         .from('proposals')
         .select(`
           *,
-          client:clients(id, name, email, phone)
+          client:clients(id, name, email, phone, cnpj, contact_name, city, state)
         `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
