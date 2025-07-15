@@ -5,6 +5,7 @@ import WelcomeHeader from '@/components/Dashboard/WelcomeHeader';
 import StatsCard from '@/components/Dashboard/StatsCard';
 import ActivityFeed from '@/components/Dashboard/ActivityFeed';
 import QuickActions from '@/components/Dashboard/QuickActions';
+import ContestedProposalBanner from '@/components/Dashboard/ContestedProposalBanner';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { 
@@ -70,6 +71,9 @@ const Index = () => {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <WelcomeHeader />
+
+        {/* Contested Proposals Banner */}
+        <ContestedProposalBanner />
 
         {/* Quick Actions */}
         <div className="mb-8">

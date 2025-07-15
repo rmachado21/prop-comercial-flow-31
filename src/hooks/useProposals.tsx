@@ -11,7 +11,7 @@ export interface Proposal {
   proposal_number: string;
   title: string;
   description: string | null;
-  status: 'draft' | 'sent' | 'approved' | 'rejected' | 'expired' | 'nfe_issued';
+  status: 'draft' | 'sent' | 'approved' | 'rejected' | 'expired' | 'nfe_issued' | 'contested';
   subtotal: number;
   discount_percentage: number | null;
   discount_amount: number | null;
@@ -279,7 +279,8 @@ export const useProposals = () => {
         approved: 'Aprovada',
         rejected: 'Rejeitada',
         expired: 'Expirada',
-        nfe_issued: 'NFe Emitida'
+        nfe_issued: 'NFe Emitida',
+        contested: 'Contestada'
       };
 
       toast({
