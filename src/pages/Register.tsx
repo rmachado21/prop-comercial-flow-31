@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Mail, Lock, User, Building, AlertCircle } from 'lucide-react';
+import { FileText, Mail, Lock, User, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Register = () => {
@@ -16,8 +16,7 @@ const Register = () => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    company: ''
+    confirmPassword: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -70,7 +69,7 @@ const Register = () => {
       return;
     }
 
-    const success = await register(formData.name, formData.email, formData.password, formData.company);
+    const success = await register(formData.name, formData.email, formData.password);
     
     if (success) {
       toast({
@@ -136,27 +135,6 @@ const Register = () => {
                     <span>{errors.name}</span>
                   </div>
                 )}
-              </div>
-
-              {/* Company */}
-              <div className="space-y-2">
-                <Label htmlFor="company" className="text-commercial-700">
-                  Empresa (opcional)
-                </Label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Building className="h-5 w-5 text-commercial-400" />
-                  </div>
-                  <Input
-                    id="company"
-                    name="company"
-                    type="text"
-                    value={formData.company}
-                    onChange={handleInputChange}
-                    className="pl-10"
-                    placeholder="Nome da sua empresa"
-                  />
-                </div>
               </div>
 
               {/* Email */}
