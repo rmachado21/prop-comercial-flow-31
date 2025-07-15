@@ -16,7 +16,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const itemSchema = z.object({
   product_name: z.string().min(1, 'Nome do produto é obrigatório'),
   product_description: z.string().optional(),
-  quantity: z.number().min(0.01, 'Quantidade deve ser maior que 0'),
+  quantity: z.number().int().min(1, 'Quantidade deve ser um número inteiro maior que 0'),
   unit_price: z.number().min(0, 'Preço unitário deve ser maior ou igual a 0'),
 });
 
@@ -208,7 +208,7 @@ const ProposalItemForm: React.FC<ProposalItemFormProps> = ({ item, onSave, onClo
                   <Input
                     id="quantity"
                     type="number"
-                    step="0.01"
+                    step="1"
                     {...form.register('quantity', { valueAsNumber: true })}
                     placeholder="1"
                   />
