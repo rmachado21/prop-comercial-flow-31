@@ -25,7 +25,7 @@ const Proposals: React.FC = () => {
   const { exportToPDF } = useProposalExport();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [showForm, setShowForm] = useState(false);
   const [editingProposal, setEditingProposal] = useState<Proposal | null>(null);
   const [deleteProposal, setDeleteProposal] = useState<Proposal | null>(null);

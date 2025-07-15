@@ -57,7 +57,7 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [showProductForm, setShowProductForm] = useState(false);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
