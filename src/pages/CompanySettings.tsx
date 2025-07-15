@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
-import { Building2, Upload, Download, Save, Loader2, ArrowLeft } from 'lucide-react';
+import { Building2, Upload, Download, Save, Loader2, ArrowLeft, Shield } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 
@@ -34,6 +34,12 @@ const CompanySettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
   const [company, setCompany] = useState<Company>({
     id: '',
     name: '',
@@ -211,6 +217,93 @@ const CompanySettings = () => {
         description: 'Erro ao gerar backup',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    if (!user) return;
+
+    // Validações
+    if (!passwordForm.currentPassword) {
+      toast({
+        title: 'Erro',
+        description: 'Senha atual é obrigatória',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      toast({
+        title: 'Erro',
+        description: 'Nova senha deve ter pelo menos 6 caracteres',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast({
+        title: 'Erro',
+        description: 'Confirmação de senha não confere',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      toast({
+        title: 'Erro',
+        description: 'A nova senha deve ser diferente da atual',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      // Primeiro verifica a senha atual fazendo uma tentativa de login
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email!,
+        password: passwordForm.currentPassword,
+      });
+
+      if (signInError) {
+        toast({
+          title: 'Erro',
+          description: 'Senha atual incorreta',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Atualiza a senha
+      const { error } = await supabase.auth.updateUser({
+        password: passwordForm.newPassword
+      });
+
+      if (error) throw error;
+
+      // Limpa o formulário
+      setPasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+
+      toast({
+        title: 'Sucesso',
+        description: 'Senha alterada com sucesso!',
+      });
+    } catch (error) {
+      console.error('Error changing password:', error);
+      toast({
+        title: 'Erro',
+        description: 'Erro ao alterar senha',
+        variant: 'destructive',
+      });
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -398,6 +491,65 @@ const CompanySettings = () => {
                   </div>
                 )}
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                Segurança
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="currentPassword">Senha Atual *</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                  placeholder="Digite sua senha atual"
+                />
+              </div>
+              <div>
+                <Label htmlFor="newPassword">Nova Senha *</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={passwordForm.newPassword}
+                  onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                  placeholder="Digite a nova senha (mín. 6 caracteres)"
+                />
+              </div>
+              <div>
+                <Label htmlFor="confirmPassword">Confirmar Nova Senha *</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  placeholder="Confirme a nova senha"
+                />
+              </div>
+              <Button
+                onClick={handlePasswordChange}
+                disabled={changingPassword || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
+                className="w-full"
+                variant="outline"
+              >
+                {changingPassword ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Alterando Senha...
+                  </>
+                ) : (
+                  <>
+                    <Shield className="w-4 h-4 mr-2" />
+                    Alterar Senha
+                  </>
+                )}
+              </Button>
             </CardContent>
           </Card>
 
