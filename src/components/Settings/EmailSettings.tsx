@@ -1,22 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Mail, Key, Globe, CheckCircle, AlertCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Mail, Key, Globe, CheckCircle, AlertCircle, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export const EmailSettings = () => {
   const { toast } = useToast();
   const [isConfiguring, setIsConfiguring] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [secretsStatus, setSecretsStatus] = useState({
+    RESEND_API_KEY: false,
+    SITE_URL: false
+  });
 
-  const handleConfigureSecrets = () => {
+
+  const handleConfigureApiKey = () => {
     toast({
-      title: 'Configuração de Secrets',
-      description: 'Acesse o painel do Supabase para configurar as chaves de API necessárias.',
+      title: 'Configurar API Key do Resend',
+      description: (
+        <div className="space-y-3">
+          <p>Para configurar sua API Key do Resend:</p>
+          <ol className="list-decimal list-inside space-y-1 text-sm">
+            <li>Acesse o painel do Supabase</li>
+            <li>Vá para Settings → Edge Functions</li>
+            <li>Clique em "Environment Variables"</li>
+            <li>Adicione: <strong>RESEND_API_KEY</strong> = {apiKey || 'sua_api_key'}</li>
+            <li>Salve as configurações</li>
+          </ol>
+          <p className="text-xs">Sua API Key: <code className="bg-muted px-1 py-0.5 rounded">{apiKey}</code></p>
+        </div>
+      ),
+      duration: 10000,
     });
+    
+    setSecretsStatus(prev => ({ ...prev, RESEND_API_KEY: true }));
+    setIsDialogOpen(false);
+    setApiKey('');
   };
 
   const requiredSecrets = [
@@ -24,7 +50,7 @@ export const EmailSettings = () => {
       name: 'RESEND_API_KEY',
       description: 'Chave da API do Resend para envio de emails',
       icon: <Key className="h-4 w-4" />,
-      status: 'required'
+      status: secretsStatus.RESEND_API_KEY ? 'configured' : 'required'
     },
     {
       name: 'SITE_URL',
@@ -121,27 +147,68 @@ export const EmailSettings = () => {
             </ul>
           </div>
 
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              <strong>Próximos Passos:</strong>
-              <ol className="list-decimal list-inside mt-2 space-y-1 text-sm">
-                <li>Acesse o painel do Supabase</li>
-                <li>Vá para a seção "Settings" → "Secrets"</li>
-                <li>Adicione a secret <code>RESEND_API_KEY</code> com sua chave do Resend</li>
-                <li>Confirme que <code>SITE_URL</code> está configurada como <code>https://propostaonline.app.br</code></li>
-                <li>Teste o envio de uma proposta</li>
-              </ol>
-            </AlertDescription>
-          </Alert>
+          {!secretsStatus.RESEND_API_KEY && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Configuração Necessária:</strong> Para usar o sistema de envio de emails, 
+                você precisa configurar sua API Key do Resend.
+              </AlertDescription>
+            </Alert>
+          )}
 
-          <Button 
-            onClick={handleConfigureSecrets}
-            className="w-full"
-            disabled={isConfiguring}
-          >
-            {isConfiguring ? 'Configurando...' : 'Abrir Documentação do Supabase'}
-          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                className="w-full"
+                disabled={secretsStatus.RESEND_API_KEY}
+                variant={secretsStatus.RESEND_API_KEY ? "outline" : "default"}
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                {secretsStatus.RESEND_API_KEY ? 'API Key Configurada' : 'Configurar API Key do Resend'}
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Configurar API Key do Resend</DialogTitle>
+                <DialogDescription>
+                  Insira sua API Key do Resend para habilitar o envio de emails das propostas.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="apiKey">API Key do Resend</Label>
+                  <Input
+                    id="apiKey"
+                    type="password"
+                    placeholder="re_..."
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Encontre sua API Key no painel do Resend em API Keys
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleConfigureApiKey}
+                    disabled={isConfiguring || !apiKey}
+                    className="flex-1"
+                  >
+                    {isConfiguring ? 'Configurando...' : 'Salvar Configuração'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                    disabled={isConfiguring}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
     </div>
