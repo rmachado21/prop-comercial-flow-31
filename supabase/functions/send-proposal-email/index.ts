@@ -28,30 +28,38 @@ const handler = async (req: Request): Promise<Response> => {
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     
     console.log('RESEND_API_KEY configurada:', !!resendApiKey);
     console.log('SUPABASE_URL configurada:', !!supabaseUrl);
     console.log('SUPABASE_ANON_KEY configurada:', !!supabaseAnonKey);
+    console.log('SUPABASE_SERVICE_ROLE_KEY configurada:', !!supabaseServiceKey);
     
     if (!resendApiKey) {
       throw new Error('RESEND_API_KEY não configurada');
     }
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceKey) {
       throw new Error('Credenciais do Supabase não configuradas');
     }
     
     // Initialize Resend with validated API key
     const resend = new Resend(resendApiKey);
 
-    // Initialize Supabase client
+    // Initialize Supabase client for user operations (anon key with auth)
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      supabaseUrl,
+      supabaseAnonKey,
       {
         global: {
           headers: { Authorization: req.headers.get('Authorization')! },
         },
       }
+    );
+
+    // Initialize Supabase client for admin operations (service role key)
+    const supabaseAdmin = createClient(
+      supabaseUrl,
+      supabaseServiceKey
     );
 
     const { proposalId, recipient, subject, message }: SendProposalEmailRequest = await req.json();
@@ -99,8 +107,23 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Itens encontrados:', items?.length || 0);
 
-    // Prepare email content
-    const defaultSubject = `Proposta Comercial - ${proposal.proposal_number}`;
+    // Fetch company data for email subject
+    console.log('=== BUSCANDO DADOS DA EMPRESA ===');
+    const { data: company, error: companyError } = await supabaseClient
+      .from('companies')
+      .select('name')
+      .eq('user_id', proposal.user_id)
+      .single();
+
+    if (companyError) {
+      console.error('Erro ao buscar empresa:', companyError);
+    }
+
+    console.log('Empresa encontrada:', company?.name || 'Não encontrada');
+
+    // Prepare email content with company name in subject
+    const companyName = company?.name || 'Proposta';
+    const defaultSubject = subject || `Proposta ${companyName} ${proposal.proposal_number}`;
     const defaultMessage = `
 Prezado(a) ${proposal.client?.name || 'Cliente'},
 
@@ -122,12 +145,12 @@ Atenciosamente,
 Equipe Comercial
     `.trim();
 
-    // Generate approval token
+    // Generate approval token using service role
     console.log('=== GERANDO TOKEN DE APROVAÇÃO ===');
     let approvalLink = null;
     let commentsLink = null;
     try {
-      const { data: tokenData, error: tokenError } = await supabaseClient
+      const { data: tokenData, error: tokenError } = await supabaseAdmin
         .from('proposal_approval_tokens')
         .insert({
           proposal_id: proposalId,
@@ -142,7 +165,7 @@ Equipe Comercial
         const baseUrl = Deno.env.get('SITE_URL') || 'https://propostaonline.app.br';
         approvalLink = `${baseUrl}/aprovacao/${tokenData.token}`;
         commentsLink = `${baseUrl}/observacoes/${tokenData.token}`;
-        console.log('Token de aprovação criado:', tokenData.token);
+        console.log('Token de aprovação criado com sucesso:', tokenData.token);
       }
     } catch (error) {
       console.error('Erro ao gerar token:', error);
@@ -152,7 +175,7 @@ Equipe Comercial
     const emailResponse = await resend.emails.send({
       from: 'Propostas Online <noreply@propostaonline.app.br>',
       to: [recipient],
-      subject: subject || defaultSubject,
+      subject: defaultSubject,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
           <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -220,6 +243,23 @@ Equipe Comercial
       // Don't throw here as email was sent successfully
     } else {
       console.log('Envio registrado com sucesso');
+    }
+
+    // Update proposal status to "Enviada" and set sent_at timestamp
+    console.log('=== ATUALIZANDO STATUS DA PROPOSTA ===');
+    const { error: updateError } = await supabaseClient
+      .from('proposals')
+      .update({
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+      })
+      .eq('id', proposalId);
+
+    if (updateError) {
+      console.error('Erro ao atualizar status da proposta:', updateError);
+      // Don't throw here as email was sent successfully
+    } else {
+      console.log('Status da proposta atualizado para "Enviada"');
     }
 
     console.log('=== PROCESSO CONCLUÍDO COM SUCESSO ===');
