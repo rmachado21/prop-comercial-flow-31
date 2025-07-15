@@ -232,21 +232,21 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                   <span>{new Date(proposal.created_at).toLocaleDateString('pt-BR')}</span>
                   <span>•</span>
                   <span>{proposal.validity_days ? `${proposal.validity_days} dias` : 'Indefinida'}</span>
-                  {proposal.client?.phone && (
-                    <>
-                      <span>•</span>
-                      <div className="flex items-center gap-1">
-                        <Phone className="w-3 h-3" />
-                        <span>{formatPhone(proposal.client.phone)}</span>
-                      </div>
-                    </>
-                  )}
                   {proposal.client?.contact_name && (
                     <>
                       <span>•</span>
                       <div className="flex items-center gap-1">
                         <User className="w-3 h-3" />
                         <span>{proposal.client.contact_name}</span>
+                      </div>
+                    </>
+                  )}
+                  {proposal.client?.phone && (
+                    <>
+                      <span>•</span>
+                      <div className="flex items-center gap-1">
+                        <Phone className="w-3 h-3" />
+                        <span>{formatPhone(proposal.client.phone)}</span>
                       </div>
                     </>
                   )}
