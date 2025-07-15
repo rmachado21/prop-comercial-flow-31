@@ -15,8 +15,6 @@ interface SendProposalEmailRequest {
   message?: string;
 }
 
-const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
-
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -25,9 +23,25 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     console.log('=== INÍCIO DO PROCESSO DE ENVIO ===');
-    console.log('RESEND_API_KEY configurada:', !!Deno.env.get('RESEND_API_KEY'));
-    console.log('SUPABASE_URL configurada:', !!Deno.env.get('SUPABASE_URL'));
-    console.log('SUPABASE_ANON_KEY configurada:', !!Deno.env.get('SUPABASE_ANON_KEY'));
+    
+    // Validate required environment variables
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+    
+    console.log('RESEND_API_KEY configurada:', !!resendApiKey);
+    console.log('SUPABASE_URL configurada:', !!supabaseUrl);
+    console.log('SUPABASE_ANON_KEY configurada:', !!supabaseAnonKey);
+    
+    if (!resendApiKey) {
+      throw new Error('RESEND_API_KEY não configurada');
+    }
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Credenciais do Supabase não configuradas');
+    }
+    
+    // Initialize Resend with validated API key
+    const resend = new Resend(resendApiKey);
 
     // Initialize Supabase client
     const supabaseClient = createClient(
