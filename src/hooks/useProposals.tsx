@@ -20,7 +20,7 @@ export interface Proposal {
   total_amount: number;
   validity_days: number | null;
   expiry_date: string | null;
-  notes: string | null;
+  
   terms_and_conditions: string | null;
   created_at: string;
   updated_at: string;
@@ -114,7 +114,7 @@ export const useProposals = () => {
         total_amount: proposalData.total_amount || 0,
         validity_days: proposalData.validity_days || null,
         expiry_date: proposalData.expiry_date || null,
-        notes: proposalData.notes || null,
+        
         terms_and_conditions: proposalData.terms_and_conditions || null,
       };
 
@@ -160,7 +160,7 @@ export const useProposals = () => {
         total_amount: proposalData.total_amount,
         validity_days: proposalData.validity_days,
         expiry_date: proposalData.expiry_date,
-        notes: proposalData.notes,
+        
         terms_and_conditions: proposalData.terms_and_conditions,
         updated_at: new Date().toISOString(),
       };

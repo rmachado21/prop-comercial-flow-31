@@ -53,7 +53,7 @@ const ProposalChangeLog: React.FC<ProposalChangeLogProps> = ({
       'client_id': 'Cliente',
       'validity_days': 'Validade',
       'discount_percentage': 'Desconto',
-      'notes': 'Observações',
+      
       'terms_and_conditions': 'Termos e Condições',
       'subtotal': 'Subtotal',
       'total_amount': 'Valor Total',

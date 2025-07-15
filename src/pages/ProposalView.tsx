@@ -264,25 +264,16 @@ const ProposalView: React.FC = () => {
             </Card>
 
             {/* Additional Information */}
-            {(proposal.notes || proposal.terms_and_conditions) && (
+            {proposal.terms_and_conditions && (
               <Card>
                 <CardHeader>
                   <CardTitle>Informações Adicionais</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {proposal.notes && (
-                    <div>
-                      <span className="text-commercial-600 font-medium">Observações:</span>
-                      <p className="mt-1">{proposal.notes}</p>
-                    </div>
-                  )}
-                  
-                  {proposal.terms_and_conditions && (
-                    <div>
-                      <span className="text-commercial-600 font-medium">Termos e Condições:</span>
-                      <p className="mt-1 whitespace-pre-wrap">{proposal.terms_and_conditions}</p>
-                    </div>
-                  )}
+                <CardContent>
+                  <div>
+                    <span className="text-commercial-600 font-medium">Termos e Condições:</span>
+                    <p className="mt-1 whitespace-pre-wrap">{proposal.terms_and_conditions}</p>
+                  </div>
                 </CardContent>
               </Card>
             )}

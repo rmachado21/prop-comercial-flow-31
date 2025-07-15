@@ -202,25 +202,16 @@ const ProposalPreview: React.FC<ProposalPreviewProps> = ({
           </CardContent>
         </Card>
 
-        {/* Notes and Terms */}
-        {(proposal.notes || proposal.terms_and_conditions) && (
+        {/* Terms and Conditions */}
+        {proposal.terms_and_conditions && (
           <Card>
-            <CardContent className="pt-6 space-y-4">
-              {proposal.notes && (
-                <div>
-                  <h3 className="font-semibold text-commercial-900 mb-2">Observações</h3>
-                  <p className="text-sm text-commercial-700">{proposal.notes}</p>
-                </div>
-              )}
-              
-              {proposal.terms_and_conditions && (
-                <div>
-                  <h3 className="font-semibold text-commercial-900 mb-2">Termos e Condições</h3>
-                  <p className="text-sm text-commercial-700 whitespace-pre-wrap">
-                    {proposal.terms_and_conditions}
-                  </p>
-                </div>
-              )}
+            <CardContent className="pt-6">
+              <div>
+                <h3 className="font-semibold text-commercial-900 mb-2">Termos e Condições</h3>
+                <p className="text-sm text-commercial-700 whitespace-pre-wrap">
+                  {proposal.terms_and_conditions}
+                </p>
+              </div>
             </CardContent>
           </Card>
         )}

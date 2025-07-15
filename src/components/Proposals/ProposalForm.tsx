@@ -30,7 +30,7 @@ const proposalSchema = z.object({
   client_id: z.string().min(1, 'Cliente é obrigatório'),
   validity_days: z.number().min(1, 'Validade deve ser maior que 0').optional(),
   discount_percentage: z.number().min(0).max(100).optional(),
-  notes: z.string().optional(),
+  
   terms_and_conditions: z.string().optional(),
 });
 
@@ -56,7 +56,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
       client_id: proposal?.client_id || '',
       validity_days: proposal?.validity_days || 30,
       discount_percentage: proposal?.discount_percentage || 0,
-      notes: proposal?.notes || '',
+      
       terms_and_conditions: proposal?.terms_and_conditions || '',
     },
   });
@@ -68,7 +68,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
         client_id: proposal.client_id || '',
         validity_days: proposal.validity_days || 30,
         discount_percentage: proposal.discount_percentage || 0,
-        notes: proposal.notes || '',
+        
         terms_and_conditions: proposal.terms_and_conditions || '',
       });
     }
@@ -124,13 +124,6 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
           });
         }
         
-        if (proposal.notes !== data.notes) {
-          changesList.push({
-            field: 'notes',
-            oldValue: proposal.notes,
-            newValue: data.notes,
-          });
-        }
         
         if (proposal.terms_and_conditions !== data.terms_and_conditions) {
           changesList.push({
@@ -410,15 +403,6 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
                   <CardTitle>Informações Adicionais</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="notes">Observações</Label>
-                    <Textarea
-                      id="notes"
-                      {...form.register('notes')}
-                      placeholder="Observações internas"
-                      rows={3}
-                    />
-                  </div>
 
                   <div>
                     <Label htmlFor="terms_and_conditions">Termos e Condições</Label>
