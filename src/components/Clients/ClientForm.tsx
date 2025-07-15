@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { maskCNPJ, maskPhone, maskCEP, validateCNPJ, validatePhone, validateCEP } from '@/lib/masks';
 
 interface Client {
   id?: string;
@@ -96,6 +97,21 @@ const ClientForm: React.FC<ClientFormProps> = ({ isOpen, onClose, client }) => {
       newErrors.email = 'Email inválido';
     }
 
+    // Validação de CNPJ
+    if (formData.cnpj && !validateCNPJ(formData.cnpj)) {
+      newErrors.cnpj = 'CNPJ inválido';
+    }
+
+    // Validação de telefone
+    if (formData.phone && !validatePhone(formData.phone)) {
+      newErrors.phone = 'Telefone inválido';
+    }
+
+    // Validação de CEP
+    if (formData.zip_code && !validateCEP(formData.zip_code)) {
+      newErrors.zip_code = 'CEP inválido';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -154,7 +170,18 @@ const ClientForm: React.FC<ClientFormProps> = ({ isOpen, onClose, client }) => {
   };
 
   const handleInputChange = (field: keyof Client, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    let maskedValue = value;
+    
+    // Aplica máscaras específicas
+    if (field === 'cnpj') {
+      maskedValue = maskCNPJ(value);
+    } else if (field === 'phone') {
+      maskedValue = maskPhone(value);
+    } else if (field === 'zip_code') {
+      maskedValue = maskCEP(value);
+    }
+    
+    setFormData(prev => ({ ...prev, [field]: maskedValue }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -205,8 +232,13 @@ const ClientForm: React.FC<ClientFormProps> = ({ isOpen, onClose, client }) => {
                 id="cnpj"
                 value={formData.cnpj}
                 onChange={(e) => handleInputChange('cnpj', e.target.value)}
+                className={errors.cnpj ? 'border-red-500' : ''}
                 placeholder="00.000.000/0000-00"
+                maxLength={18}
               />
+              {errors.cnpj && (
+                <p className="text-red-500 text-sm">{errors.cnpj}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -243,8 +275,13 @@ const ClientForm: React.FC<ClientFormProps> = ({ isOpen, onClose, client }) => {
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
+                className={errors.phone ? 'border-red-500' : ''}
                 placeholder="(11) 99999-9999"
+                maxLength={15}
               />
+              {errors.phone && (
+                <p className="text-red-500 text-sm">{errors.phone}</p>
+              )}
             </div>
           </div>
 
@@ -287,8 +324,13 @@ const ClientForm: React.FC<ClientFormProps> = ({ isOpen, onClose, client }) => {
                   id="zip_code"
                   value={formData.zip_code}
                   onChange={(e) => handleInputChange('zip_code', e.target.value)}
+                  className={errors.zip_code ? 'border-red-500' : ''}
                   placeholder="00000-000"
+                  maxLength={9}
                 />
+                {errors.zip_code && (
+                  <p className="text-red-500 text-sm">{errors.zip_code}</p>
+                )}
               </div>
             </div>
           </div>
