@@ -77,16 +77,6 @@ const Index = () => {
       subtitle: 'Aguardando resposta',
       icon: Clock,
       iconColor: 'text-yellow-600'
-    },
-    {
-      title: 'Meta Mensal',
-      value: formatPercentage(dashboardStats.monthlyGoalPercentage),
-      subtitle: formatCurrency(dashboardStats.monthlyGoal),
-      icon: Target,
-      iconColor: 'text-blue-600',
-      trend: dashboardStats.monthlyGoalPercentage < 100 ? 
-        { value: `${formatCurrency(dashboardStats.monthlyGoal - dashboardStats.revenueThisMonth)} restante`, isPositive: false } : 
-        { value: 'Meta atingida!', isPositive: true }
     }
   ];
 
@@ -105,7 +95,7 @@ const Index = () => {
         {/* Stats Grid */}
         {dashboardStats.loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {[...Array(7)].map((_, index) => (
+            {[...Array(6)].map((_, index) => (
               <div key={index} className="bg-white rounded-lg card-shadow p-6">
                 <div className="animate-pulse">
                   <div className="flex items-center justify-between mb-4">
@@ -171,23 +161,6 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg card-shadow p-6 text-white">
-              <h3 className="text-lg font-semibold mb-2">
-                🎯 Meta do Mês
-              </h3>
-              <p className="text-primary-100 text-sm mb-4">
-                {dashboardStats.monthlyGoalPercentage >= 100 
-                  ? 'Parabéns! Você atingiu sua meta mensal!' 
-                  : `Faltam ${formatCurrency(dashboardStats.monthlyGoal - dashboardStats.revenueThisMonth)} para atingir sua meta.`
-                }
-              </p>
-              <div className="bg-white/20 rounded-full h-3 mb-2">
-                <div className="bg-white h-3 rounded-full" style={{ width: `${Math.min(dashboardStats.monthlyGoalPercentage, 100)}%` }}></div>
-              </div>
-              <p className="text-sm text-primary-100">
-                {formatPercentage(dashboardStats.monthlyGoalPercentage)} concluído - {formatCurrency(dashboardStats.revenueThisMonth)} de {formatCurrency(dashboardStats.monthlyGoal)}
-              </p>
-            </div>
           </div>
         </div>
       </div>
