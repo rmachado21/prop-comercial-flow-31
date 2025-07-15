@@ -30,12 +30,12 @@ export interface ProposalForApproval {
     unit_price: number;
     total_price: number;
   }>;
-  company: {
+  company?: {
     name: string;
     email: string | null;
     phone: string | null;
     address: string | null;
-  };
+  } | null;
 }
 
 export const useProposalApproval = () => {
@@ -50,8 +50,8 @@ export const useProposalApproval = () => {
     try {
       setIsLoading(true);
 
-      // First, validate the token (using any type temporarily until migration is applied)
-      const { data: tokenData, error: tokenError } = await (supabase as any)
+      // First, validate the token
+      const { data: tokenData, error: tokenError } = await supabase
         .from('proposal_approval_tokens')
         .select('*')
         .eq('token', token)
@@ -73,8 +73,8 @@ export const useProposalApproval = () => {
         return { isValid: false, error: 'O link de aprovação expirou' };
       }
 
-      // Get proposal details with client and company info (using any to bypass type issues temporarily)
-      const { data: proposalData, error: proposalError } = await (supabase as any)
+      // Get proposal details with client info
+      const { data: proposalData, error: proposalError } = await supabase
         .from('proposals')
         .select(`
           id,
@@ -82,8 +82,8 @@ export const useProposalApproval = () => {
           description,
           total_amount,
           created_at,
-          client:clients(name, email, phone),
-          company:companies(name, email, phone, address)
+          user_id,
+          client:clients(name, email, phone)
         `)
         .eq('id', tokenData.proposal_id)
         .single();
@@ -91,6 +91,13 @@ export const useProposalApproval = () => {
       if (proposalError) {
         throw proposalError;
       }
+
+      // Get company info separately to handle user-specific data
+      const { data: companyData } = await supabase
+        .from('companies')
+        .select('name, email, phone, address')
+        .eq('user_id', proposalData.user_id)
+        .maybeSingle();
 
       // Get proposal items
       const { data: itemsData, error: itemsError } = await supabase
@@ -107,6 +114,7 @@ export const useProposalApproval = () => {
         isValid: true,
         proposal: {
           ...proposalData,
+          company: companyData,
           items: itemsData || []
         }
       };

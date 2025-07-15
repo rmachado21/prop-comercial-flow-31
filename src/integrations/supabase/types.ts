@@ -268,6 +268,47 @@ export type Database = {
           },
         ]
       }
+      proposal_changes: {
+        Row: {
+          change_type: string
+          created_at: string | null
+          field_changed: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          proposal_id: string
+          user_id: string
+        }
+        Insert: {
+          change_type: string
+          created_at?: string | null
+          field_changed: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          proposal_id: string
+          user_id: string
+        }
+        Update: {
+          change_type?: string
+          created_at?: string | null
+          field_changed?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          proposal_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_changes_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       proposal_client_comments: {
         Row: {
           client_email: string | null

@@ -109,14 +109,11 @@ serve(async (req) => {
       .from('proposal_changes')
       .insert({
         proposal_id: tokenData.proposal_id,
-        field_name: 'status',
+        user_id: '00000000-0000-0000-0000-000000000000', // System user for client actions
+        field_changed: 'status',
         old_value: 'sent',
         new_value: 'approved',
-        change_type: 'update',
-        changed_by: clientName || 'Cliente',
-        client_approval: true,
-        client_ip: clientIP,
-        user_agent: userAgent
+        change_type: 'approved'
       })
 
     if (logError) {

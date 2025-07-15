@@ -22,10 +22,10 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Initialize Supabase client
+    // Initialize Supabase client with service role for admin operations
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     const { token, clientName, clientEmail, comments, clientIP, userAgent }: SubmitCommentsRequest = await req.json();
@@ -111,14 +111,11 @@ const handler = async (req: Request): Promise<Response> => {
         .from('proposal_changes')
         .insert({
           proposal_id: tokenData.proposal_id,
-          field_name: 'observacoes_cliente',
+          user_id: '00000000-0000-0000-0000-000000000000', // System user for client actions
+          field_changed: 'observacoes_cliente',
           old_value: null,
           new_value: comments,
-          change_type: 'update',
-          changed_by: 'client',
-          client_approval: false,
-          client_ip: clientIP,
-          user_agent: userAgent
+          change_type: 'commented'
         });
 
       if (changeError) {
