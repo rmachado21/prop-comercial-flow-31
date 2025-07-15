@@ -5,111 +5,91 @@ import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
 import { Proposal, ProposalItem } from './useProposals';
 import { useToast } from '@/hooks/use-toast';
+import { useCompanyData } from './useCompanyData';
+import { createRoot } from 'react-dom/client';
+import ProposalPDFTemplate from '@/components/Proposals/ProposalPDFTemplate';
 
 export const useProposalExport = () => {
   const { toast } = useToast();
+  const { company } = useCompanyData();
   const [isExporting, setIsExporting] = useState(false);
 
   const exportToPDF = async (proposal: Proposal, items: ProposalItem[], customFileName?: string) => {
     setIsExporting(true);
     try {
-      const pdf = new jsPDF();
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const margin = 20;
-      let yPosition = margin;
+      // Create a temporary container
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '-9999px';
+      tempContainer.style.width = '210mm';
+      tempContainer.style.backgroundColor = 'white';
+      document.body.appendChild(tempContainer);
 
-      // Header
-      pdf.setFontSize(20);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('PROPOSTA COMERCIAL', margin, yPosition);
-      yPosition += 20;
+      // Create React root and render template
+      const root = createRoot(tempContainer);
+      
+      // Render the template
+      root.render(
+        <ProposalPDFTemplate 
+          proposal={proposal} 
+          items={items} 
+          company={company} 
+        />
+      );
 
-      // Proposal info
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text(`Número: ${proposal.proposal_number}`, margin, yPosition);
-      yPosition += 10;
-      pdf.text(`Título: ${proposal.title}`, margin, yPosition);
-      yPosition += 10;
-      pdf.text(`Cliente: ${proposal.client?.name || 'N/A'}`, margin, yPosition);
-      yPosition += 10;
-      pdf.text(`Data: ${new Date(proposal.created_at).toLocaleDateString('pt-BR')}`, margin, yPosition);
-      yPosition += 20;
+      // Wait for rendering to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Items table
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('ITENS DA PROPOSTA', margin, yPosition);
-      yPosition += 15;
+      // Get the rendered template element
+      const templateElement = tempContainer.querySelector('#pdf-template') as HTMLElement;
+      
+      if (!templateElement) {
+        throw new Error('Template não encontrado');
+      }
 
-      // Table headers
-      const headers = ['Item', 'Descrição', 'Qtd', 'Preço Unit.', 'Total'];
-      const columnWidths = [20, 80, 25, 30, 30];
-      let xPosition = margin;
-
-      pdf.setFontSize(10);
-      headers.forEach((header, index) => {
-        pdf.text(header, xPosition, yPosition);
-        xPosition += columnWidths[index];
-      });
-      yPosition += 10;
-
-      // Table rows
-      pdf.setFont('helvetica', 'normal');
-      items.forEach((item, index) => {
-        if (yPosition > 250) {
-          pdf.addPage();
-          yPosition = margin;
-        }
-
-        xPosition = margin;
-        const rowData = [
-          (index + 1).toString(),
-          item.product_name,
-          item.quantity.toString(),
-          `R$ ${item.unit_price.toFixed(2)}`,
-          `R$ ${item.total_price.toFixed(2)}`
-        ];
-
-        rowData.forEach((data, colIndex) => {
-          const maxWidth = columnWidths[colIndex] - 5;
-          const lines = pdf.splitTextToSize(data, maxWidth);
-          pdf.text(lines, xPosition, yPosition);
-          xPosition += columnWidths[colIndex];
-        });
-        yPosition += 15;
+      // Generate canvas from HTML
+      const canvas = await html2canvas(templateElement, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        width: templateElement.scrollWidth,
+        height: templateElement.scrollHeight,
       });
 
-      // Totals
-      yPosition += 10;
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(`Subtotal: R$ ${proposal.subtotal.toFixed(2)}`, pageWidth - 80, yPosition);
-      yPosition += 10;
-      
-      if (proposal.discount_amount && proposal.discount_amount > 0) {
-        pdf.text(`Desconto: R$ ${proposal.discount_amount.toFixed(2)}`, pageWidth - 80, yPosition);
-        yPosition += 10;
-      }
-      
-      if (proposal.tax_amount && proposal.tax_amount > 0) {
-        pdf.text(`Impostos: R$ ${proposal.tax_amount.toFixed(2)}`, pageWidth - 80, yPosition);
-        yPosition += 10;
-      }
-      
-      pdf.text(`TOTAL: R$ ${proposal.total_amount.toFixed(2)}`, pageWidth - 80, yPosition);
+      // Create PDF
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
 
-      // Footer
-      if (proposal.terms_and_conditions) {
-        yPosition += 20;
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('TERMOS E CONDIÇÕES', margin, yPosition);
-        yPosition += 10;
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(9);
-        const termsLines = pdf.splitTextToSize(proposal.terms_and_conditions, pageWidth - 2 * margin);
-        pdf.text(termsLines, margin, yPosition);
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Add additional pages if needed
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
       }
 
+      // Save PDF
       pdf.save(`${customFileName || `proposta-${proposal.proposal_number}`}.pdf`);
+
+      // Cleanup
+      root.unmount();
+      document.body.removeChild(tempContainer);
       
       toast({
         title: 'Sucesso',
