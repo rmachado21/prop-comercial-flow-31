@@ -22,7 +22,9 @@ export const useRole = () => {
           .from("user_roles")
           .select("role")
           .eq("user_id", user.id)
-          .maybeSingle();
+          .order("role", { ascending: false }) // super_admin comes before user alphabetically when desc
+          .limit(1)
+          .single();
 
         if (error) {
           console.error("Error fetching user role:", error);
