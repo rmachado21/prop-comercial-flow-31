@@ -6,7 +6,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { useRole } from '@/hooks/useRole';
 import { Button } from '@/components/ui/button';
 import { 
-  FileText, 
+  FileText,
   Users, 
   Package, 
   BarChart3, 
@@ -17,6 +17,7 @@ import {
   Shield
 } from 'lucide-react';
 import { useState } from 'react';
+import logo from '@/assets/proposta-online-logo.png';
 
 const Navbar = () => {
   const { logout } = useAuth();
@@ -48,13 +49,12 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           {/* Logo e navegação principal */}
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <FileText className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-commercial-900">
-                PropostasPro
-              </span>
+            <Link to="/" className="flex items-center space-x-3">
+              <img 
+                src={logo} 
+                alt="Proposta Online" 
+                className="h-8 w-auto"
+              />
             </Link>
 
             {/* Navegação desktop */}
