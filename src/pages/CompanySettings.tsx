@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
 import { Building2, Upload, Download, Save, Loader2, ArrowLeft } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { EmailSettings } from '@/components/Settings/EmailSettings';
+
 
 interface Company {
   id: string;
@@ -364,7 +364,7 @@ const CompanySettings = () => {
             </CardContent>
           </Card>
 
-          <EmailSettings />
+          
         </div>
 
         <div className="space-y-6">
