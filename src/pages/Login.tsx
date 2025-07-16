@@ -153,11 +153,7 @@ const Login = () => {
             </div>
 
             {/* Demo Info */}
-            <div className="mt-4 p-3 bg-blue-50 rounded-md">
-              <p className="text-sm text-blue-800 text-center">
-                <strong>Demo:</strong> Use qualquer email e senha para testar
-              </p>
-            </div>
+            
           </CardContent>
         </Card>
       </div>
