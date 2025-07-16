@@ -37,7 +37,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Validate token
     const { data: tokenData, error: tokenError } = await supabaseClient
-      .from('proposal_approval_tokens')
+      .from('proposal_tokens')
       .select('*')
       .eq('token', token)
       .single();

@@ -224,50 +224,6 @@ export type Database = {
         }
         Relationships: []
       }
-      proposal_approval_tokens: {
-        Row: {
-          client_ip: unknown | null
-          client_user_agent: string | null
-          created_at: string | null
-          expires_at: string
-          id: string
-          proposal_id: string
-          token: string
-          updated_at: string | null
-          used_at: string | null
-        }
-        Insert: {
-          client_ip?: unknown | null
-          client_user_agent?: string | null
-          created_at?: string | null
-          expires_at?: string
-          id?: string
-          proposal_id: string
-          token?: string
-          updated_at?: string | null
-          used_at?: string | null
-        }
-        Update: {
-          client_ip?: unknown | null
-          client_user_agent?: string | null
-          created_at?: string | null
-          expires_at?: string
-          id?: string
-          proposal_id?: string
-          token?: string
-          updated_at?: string | null
-          used_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "proposal_approval_tokens_proposal_id_fkey"
-            columns: ["proposal_id"]
-            isOneToOne: false
-            referencedRelation: "proposals"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       proposal_changes: {
         Row: {
           change_type: string
@@ -355,7 +311,7 @@ export type Database = {
             foreignKeyName: "proposal_client_comments_token_fkey"
             columns: ["token"]
             isOneToOne: false
-            referencedRelation: "proposal_approval_tokens"
+            referencedRelation: "proposal_tokens"
             referencedColumns: ["token"]
           },
         ]
@@ -460,6 +416,59 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "proposal_sends_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proposal_tokens: {
+        Row: {
+          access_count: number | null
+          client_ip: unknown | null
+          client_user_agent: string | null
+          created_at: string | null
+          expires_at: string
+          id: string
+          last_accessed_at: string | null
+          proposal_id: string
+          purpose: string | null
+          token: string
+          updated_at: string | null
+          used_at: string | null
+        }
+        Insert: {
+          access_count?: number | null
+          client_ip?: unknown | null
+          client_user_agent?: string | null
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          last_accessed_at?: string | null
+          proposal_id: string
+          purpose?: string | null
+          token?: string
+          updated_at?: string | null
+          used_at?: string | null
+        }
+        Update: {
+          access_count?: number | null
+          client_ip?: unknown | null
+          client_user_agent?: string | null
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          last_accessed_at?: string | null
+          proposal_id?: string
+          purpose?: string | null
+          token?: string
+          updated_at?: string | null
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_approval_tokens_proposal_id_fkey"
             columns: ["proposal_id"]
             isOneToOne: false
             referencedRelation: "proposals"

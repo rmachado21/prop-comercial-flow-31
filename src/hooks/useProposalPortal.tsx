@@ -2,21 +2,13 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-export interface ProposalApprovalToken {
-  id: string;
-  proposal_id: string;
-  token: string;
-  expires_at: string;
-  used_at: string | null;
-  client_ip: string | null;
-  created_at: string;
-}
-
-export interface ProposalForApproval {
+export interface ProposalPortalData {
   id: string;
   title: string;
+  proposal_number: string;
   description: string | null;
   total_amount: number;
+  status: string;
   created_at: string;
   client: {
     name: string;
@@ -26,6 +18,7 @@ export interface ProposalForApproval {
   items: Array<{
     id: string;
     product_name: string;
+    product_description: string | null;
     quantity: number;
     unit_price: number;
     total_price: number;
@@ -36,21 +29,39 @@ export interface ProposalForApproval {
     phone: string | null;
     address: string | null;
   } | null;
+  terms_and_conditions: string | null;
 }
 
-export const useProposalApproval = () => {
+export interface ProposalComment {
+  id: string;
+  client_name: string;
+  client_email: string | null;
+  comments: string;
+  created_at: string;
+}
+
+export interface ProposalChange {
+  id: string;
+  change_type: string;
+  field_changed: string;
+  old_value: string | null;
+  new_value: string | null;
+  created_at: string;
+}
+
+export const useProposalPortal = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isApproving, setIsApproving] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateToken = async (token: string): Promise<{
     isValid: boolean;
-    proposal?: ProposalForApproval;
+    proposal?: ProposalPortalData;
     error?: string;
   }> => {
     try {
       setIsLoading(true);
 
-      // First, validate the token
+      // Validate the token
       const { data: tokenData, error: tokenError } = await supabase
         .from('proposal_tokens')
         .select('*')
@@ -65,12 +76,8 @@ export const useProposalApproval = () => {
         return { isValid: false, error: 'Token não encontrado' };
       }
 
-      if (tokenData.used_at) {
-        return { isValid: false, error: 'Esta proposta já foi aprovada anteriormente' };
-      }
-
       if (new Date(tokenData.expires_at) < new Date()) {
-        return { isValid: false, error: 'O link de aprovação expirou' };
+        return { isValid: false, error: 'O link expirou' };
       }
 
       // Get proposal details with client info
@@ -79,10 +86,13 @@ export const useProposalApproval = () => {
         .select(`
           id,
           title,
+          proposal_number,
           description,
           total_amount,
+          status,
           created_at,
           user_id,
+          terms_and_conditions,
           client:clients(name, email, phone)
         `)
         .eq('id', tokenData.proposal_id)
@@ -92,7 +102,7 @@ export const useProposalApproval = () => {
         throw proposalError;
       }
 
-      // Get company info separately to handle user-specific data
+      // Get company info
       const { data: companyData } = await supabase
         .from('companies')
         .select('name, email, phone, address')
@@ -102,13 +112,22 @@ export const useProposalApproval = () => {
       // Get proposal items
       const { data: itemsData, error: itemsError } = await supabase
         .from('proposal_items')
-        .select('id, product_name, quantity, unit_price, total_price')
+        .select('id, product_name, product_description, quantity, unit_price, total_price')
         .eq('proposal_id', tokenData.proposal_id)
         .order('created_at');
 
       if (itemsError) {
         throw itemsError;
       }
+
+      // Update token access tracking
+      await supabase
+        .from('proposal_tokens')
+        .update({ 
+          last_accessed_at: new Date().toISOString(),
+          access_count: (tokenData.access_count || 0) + 1
+        })
+        .eq('token', token);
 
       return {
         isValid: true,
@@ -123,7 +142,7 @@ export const useProposalApproval = () => {
       console.error('Error validating token:', error);
       return { 
         isValid: false, 
-        error: 'Erro ao validar o token de aprovação' 
+        error: 'Erro ao validar o token' 
       };
     } finally {
       setIsLoading(false);
@@ -135,9 +154,9 @@ export const useProposalApproval = () => {
     error?: string;
   }> => {
     try {
-      setIsApproving(true);
+      setIsSubmitting(true);
 
-      // Get client IP (simplified - in production you'd use a proper IP detection service)
+      // Get client IP
       const clientIP = await fetch('https://api.ipify.org?format=json')
         .then(res => res.json())
         .then(data => data.ip)
@@ -170,11 +189,11 @@ export const useProposalApproval = () => {
       toast.error(errorMessage);
       return { success: false, error: errorMessage };
     } finally {
-      setIsApproving(false);
+      setIsSubmitting(false);
     }
   };
 
-  const submitClientComments = async (
+  const submitComments = async (
     token: string,
     clientName: string,
     clientEmail: string,
@@ -184,7 +203,7 @@ export const useProposalApproval = () => {
     error?: string;
   }> => {
     try {
-      setIsApproving(true);
+      setIsSubmitting(true);
 
       // Get client IP
       const clientIP = await fetch('https://api.ipify.org?format=json')
@@ -209,27 +228,69 @@ export const useProposalApproval = () => {
       }
 
       if (!data.success) {
-        return { success: false, error: data.error || 'Erro ao enviar observações' };
+        return { success: false, error: data.error || 'Erro ao enviar comentário' };
       }
 
-      toast.success('Observações enviadas com sucesso!');
+      toast.success('Comentário enviado com sucesso!');
       return { success: true };
 
     } catch (error: any) {
       console.error('Error submitting comments:', error);
-      const errorMessage = error.message || 'Erro ao enviar observações';
+      const errorMessage = error.message || 'Erro ao enviar comentário';
       toast.error(errorMessage);
       return { success: false, error: errorMessage };
     } finally {
-      setIsApproving(false);
+      setIsSubmitting(false);
+    }
+  };
+
+  const getProposalHistory = async (proposalId: string): Promise<ProposalChange[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('proposal_changes')
+        .select('*')
+        .eq('proposal_id', proposalId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching proposal history:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching proposal history:', error);
+      return [];
+    }
+  };
+
+  const getProposalComments = async (proposalId: string): Promise<ProposalComment[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('proposal_client_comments')
+        .select('id, client_name, client_email, comments, created_at')
+        .eq('proposal_id', proposalId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching proposal comments:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching proposal comments:', error);
+      return [];
     }
   };
 
   return {
     validateToken,
     approveProposal,
-    submitClientComments,
+    submitComments,
+    getProposalHistory,
+    getProposalComments,
     isLoading,
-    isApproving
+    isSubmitting
   };
 };

@@ -43,7 +43,7 @@ serve(async (req) => {
     
     // 1. Validate and get token details
     const { data: tokenData, error: tokenError } = await supabase
-      .from('proposal_approval_tokens')
+      .from('proposal_tokens')
       .select('*')
       .eq('token', token)
       .is('used_at', null)  // Not used yet
@@ -65,7 +65,7 @@ serve(async (req) => {
 
     // 2. Mark token as used
     const { error: updateTokenError } = await supabase
-      .from('proposal_approval_tokens')
+      .from('proposal_tokens')
       .update({
         used_at: new Date().toISOString(),
         client_ip: clientIP,

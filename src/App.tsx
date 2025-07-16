@@ -18,6 +18,7 @@ import Proposals from "./pages/Proposals";
 import ProposalView from "./pages/ProposalView";
 import ProposalApproval from "./pages/ProposalApproval";
 import ProposalComments from "./pages/ProposalComments";
+import ProposalPortal from "./pages/ProposalPortal";
 import CompanySettings from "./pages/CompanySettings";
 import Admin from "./pages/Admin";
 import AdminRoute from "./components/AdminRoute";
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/aprovacao/:token" element={<ProposalApproval />} />
             <Route path="/observacoes/:token" element={<ProposalComments />} />
+            <Route path="/proposta/:token" element={<ProposalPortal />} />
             
             {/* Protected Routes */}
             <Route path="/" element={
