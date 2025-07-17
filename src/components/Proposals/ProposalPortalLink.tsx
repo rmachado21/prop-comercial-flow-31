@@ -23,13 +23,14 @@ export const ProposalPortalLink: React.FC<ProposalPortalLinkProps> = ({ proposal
   const generatePortalLink = async () => {
     setIsGenerating(true);
     try {
-      // Check if a portal token already exists for this proposal
+      // Check if ANY token exists for this proposal (including expired ones)
       const { data: existingToken, error: checkError } = await supabase
         .from('proposal_tokens')
-        .select('token')
+        .select('token, expires_at')
         .eq('proposal_id', proposalId)
         .eq('purpose', 'portal')
-        .gt('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (checkError) {
@@ -38,8 +39,28 @@ export const ProposalPortalLink: React.FC<ProposalPortalLinkProps> = ({ proposal
 
       let token = existingToken?.token;
 
-      // If no valid token exists, create a new one
-      if (!token) {
+      // If token exists and is still valid, use it
+      if (existingToken && new Date(existingToken.expires_at) > new Date()) {
+        token = existingToken.token;
+      }
+      // If token exists but expired, extend it
+      else if (existingToken) {
+        const { error: updateError } = await supabase
+          .from('proposal_tokens')
+          .update({
+            expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+            updated_at: new Date().toISOString()
+          })
+          .eq('token', existingToken.token);
+
+        if (updateError) {
+          console.error('Error extending token:', updateError);
+        } else {
+          token = existingToken.token;
+        }
+      }
+      // Only create new token if none exists
+      else {
         const { data: tokenData, error: tokenError } = await supabase
           .from('proposal_tokens')
           .insert({
