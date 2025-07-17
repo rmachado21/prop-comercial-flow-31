@@ -152,11 +152,12 @@ export const useProposals = () => {
     if (!user) throw new Error('User not authenticated');
 
     try {
-      // Get the current proposal to check if it was contested
+      // Get the current proposal to check if it was contested AND validate ownership
       const { data: currentProposal, error: fetchError } = await supabase
         .from('proposals')
-        .select('status, client_id, clients(name, email), title, proposal_number')
+        .select('status, client_id, clients(name, email), title, proposal_number, user_id')
         .eq('id', id)
+        .eq('user_id', user.id) // Garantir que o usuário só edite suas próprias propostas
         .single();
 
       if (fetchError) throw fetchError;
@@ -248,11 +249,14 @@ export const useProposals = () => {
   };
 
   const deleteProposal = async (id: string) => {
+    if (!user) throw new Error('User not authenticated');
+    
     try {
       const { error } = await supabase
         .from('proposals')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id); // Garantir que o usuário só delete suas próprias propostas
 
       if (error) throw error;
 
@@ -272,6 +276,8 @@ export const useProposals = () => {
   };
 
   const sendProposal = async (id: string) => {
+    if (!user) throw new Error('User not authenticated');
+    
     try {
       const { error } = await supabase
         .from('proposals')
@@ -280,7 +286,8 @@ export const useProposals = () => {
           sent_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id); // Garantir que o usuário só envie suas próprias propostas
 
       if (error) throw error;
 
@@ -300,6 +307,8 @@ export const useProposals = () => {
   };
 
   const updateProposalStatus = async (id: string, newStatus: Proposal['status']) => {
+    if (!user) throw new Error('User not authenticated');
+    
     try {
       const updateData: any = {
         status: newStatus,
@@ -316,7 +325,8 @@ export const useProposals = () => {
       const { error } = await supabase
         .from('proposals')
         .update(updateData)
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id); // Garantir que o usuário só atualize suas próprias propostas
 
       if (error) throw error;
 

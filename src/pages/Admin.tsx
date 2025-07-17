@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { Users, FileText, Building, Package, TrendingUp, Settings } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import { useRole } from '@/hooks/useRole';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UserProfile {
   id: string;
@@ -30,6 +32,8 @@ interface SystemStats {
 
 const Admin: React.FC = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { isSuperAdmin } = useRole();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,60 +42,73 @@ const Admin: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      // Fetch all profiles with role information
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select(`
-          id,
-          name,
-          email,
-          company,
-          created_at
-        `);
+      if (!user) return;
 
-      if (profilesError) throw profilesError;
+      // Super admins podem ver todos os usuários, usuários normais só seus próprios dados
+      if (isSuperAdmin) {
+        // Otimizar query para super admins usando uma única query com JOIN
+        const { data: usersWithCounts, error } = await supabase
+          .from('profiles')
+          .select(`
+            id,
+            name,
+            email,
+            company,
+            created_at,
+            user_roles!inner(role),
+            proposals:proposals(count),
+            clients:clients(count),
+            products:products(count)
+          `);
 
-      // Fetch roles for each user
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
+        if (error) throw error;
 
-      if (rolesError) throw rolesError;
+        const formattedUsers = usersWithCounts.map((user: any) => ({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          company: user.company,
+          created_at: user.created_at,
+          role: user.user_roles[0]?.role || 'user',
+          proposals_count: user.proposals[0]?.count || 0,
+          clients_count: user.clients[0]?.count || 0,
+          products_count: user.products[0]?.count || 0,
+        }));
 
-      // Combine profiles with roles and get counts
-      const usersWithRoles = await Promise.all(
-        profiles.map(async (profile) => {
-          const userRole = roles.find(r => r.user_id === profile.id);
-          
-          // Get user's proposals count
-          const { count: proposalsCount } = await supabase
-            .from('proposals')
-            .select('id', { count: 'exact' })
-            .eq('user_id', profile.id);
+        setUsers(formattedUsers);
+      } else {
+        // Usuários normais só veem seus próprios dados
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('id, name, email, company, created_at')
+          .eq('id', user.id)
+          .single();
 
-          // Get user's clients count
-          const { count: clientsCount } = await supabase
-            .from('clients')
-            .select('id', { count: 'exact' })
-            .eq('user_id', profile.id);
+        if (profileError) throw profileError;
 
-          // Get user's products count
-          const { count: productsCount } = await supabase
-            .from('products')
-            .select('id', { count: 'exact' })
-            .eq('user_id', profile.id);
+        const { data: roleData, error: roleError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
 
-          return {
-            ...profile,
-            role: userRole?.role || 'user',
-            proposals_count: proposalsCount || 0,
-            clients_count: clientsCount || 0,
-            products_count: productsCount || 0,
-          };
-        })
-      );
+        if (roleError) throw roleError;
 
-      setUsers(usersWithRoles);
+        // Contar dados próprios do usuário
+        const [proposalsCount, clientsCount, productsCount] = await Promise.all([
+          supabase.from('proposals').select('id', { count: 'exact' }).eq('user_id', user.id),
+          supabase.from('clients').select('id', { count: 'exact' }).eq('user_id', user.id),
+          supabase.from('products').select('id', { count: 'exact' }).eq('user_id', user.id)
+        ]);
+
+        setUsers([{
+          ...profile,
+          role: roleData?.role || 'user',
+          proposals_count: proposalsCount.count || 0,
+          clients_count: clientsCount.count || 0,
+          products_count: productsCount.count || 0,
+        }]);
+      }
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -104,21 +121,42 @@ const Admin: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const [usersCount, proposalsCount, clientsCount, productsCount, companiesCount] = await Promise.all([
-        supabase.from('profiles').select('id', { count: 'exact' }),
-        supabase.from('proposals').select('id', { count: 'exact' }),
-        supabase.from('clients').select('id', { count: 'exact' }),
-        supabase.from('products').select('id', { count: 'exact' }),
-        supabase.from('companies').select('id', { count: 'exact' })
-      ]);
+      if (!user) return;
 
-      setStats({
-        total_users: usersCount.count || 0,
-        total_proposals: proposalsCount.count || 0,
-        total_clients: clientsCount.count || 0,
-        total_products: productsCount.count || 0,
-        total_companies: companiesCount.count || 0,
-      });
+      if (isSuperAdmin) {
+        // Super admins veem estatísticas globais
+        const [usersCount, proposalsCount, clientsCount, productsCount, companiesCount] = await Promise.all([
+          supabase.from('profiles').select('id', { count: 'exact' }),
+          supabase.from('proposals').select('id', { count: 'exact' }),
+          supabase.from('clients').select('id', { count: 'exact' }),
+          supabase.from('products').select('id', { count: 'exact' }),
+          supabase.from('companies').select('id', { count: 'exact' })
+        ]);
+
+        setStats({
+          total_users: usersCount.count || 0,
+          total_proposals: proposalsCount.count || 0,
+          total_clients: clientsCount.count || 0,
+          total_products: productsCount.count || 0,
+          total_companies: companiesCount.count || 0,
+        });
+      } else {
+        // Usuários normais veem apenas suas próprias estatísticas
+        const [proposalsCount, clientsCount, productsCount, companiesCount] = await Promise.all([
+          supabase.from('proposals').select('id', { count: 'exact' }).eq('user_id', user.id),
+          supabase.from('clients').select('id', { count: 'exact' }).eq('user_id', user.id),
+          supabase.from('products').select('id', { count: 'exact' }).eq('user_id', user.id),
+          supabase.from('companies').select('id', { count: 'exact' }).eq('user_id', user.id)
+        ]);
+
+        setStats({
+          total_users: 1, // Apenas o próprio usuário
+          total_proposals: proposalsCount.count || 0,
+          total_clients: clientsCount.count || 0,
+          total_products: productsCount.count || 0,
+          total_companies: companiesCount.count || 0,
+        });
+      }
     } catch (error) {
       console.error('Error fetching stats:', error);
       toast({
@@ -213,10 +251,10 @@ const Admin: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-commercial-900 mb-2">
-            Admin Dashboard
+            {isSuperAdmin ? 'Admin Dashboard' : 'Meu Dashboard'}
           </h1>
           <p className="text-commercial-600">
-            Gerencie usuários e monitore o sistema
+            {isSuperAdmin ? 'Gerencie usuários e monitore o sistema' : 'Monitore suas informações'}
           </p>
         </div>
 
@@ -275,41 +313,45 @@ const Admin: React.FC = () => {
           </div>
         )}
 
-        {/* Promote User Section */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              Promover Usuário a Super Admin
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-4">
-              <Input
-                placeholder="Email do usuário..."
-                value={selectedUserEmail}
-                onChange={(e) => setSelectedUserEmail(e.target.value)}
-                className="flex-1"
-              />
-              <Button onClick={promoteToSuperAdmin}>
-                Promover
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Promote User Section - Apenas para Super Admins */}
+        {isSuperAdmin && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Promover Usuário a Super Admin
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-4">
+                <Input
+                  placeholder="Email do usuário..."
+                  value={selectedUserEmail}
+                  onChange={(e) => setSelectedUserEmail(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={promoteToSuperAdmin}>
+                  Promover
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Users Management */}
         <Card>
           <CardHeader>
-            <CardTitle>Gerenciamento de Usuários</CardTitle>
-            <div className="flex justify-between items-center">
-              <Input
-                placeholder="Buscar usuários..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-sm"
-              />
-            </div>
+            <CardTitle>{isSuperAdmin ? 'Gerenciamento de Usuários' : 'Minhas Informações'}</CardTitle>
+            {isSuperAdmin && (
+              <div className="flex justify-between items-center">
+                <Input
+                  placeholder="Buscar usuários..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="max-w-sm"
+                />
+              </div>
+            )}
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

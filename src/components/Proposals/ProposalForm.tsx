@@ -30,6 +30,7 @@ import { ProposalPortalLink } from '@/components/Proposals/ProposalPortalLink';
 import { getStatusConfig } from '@/lib/statusConfig';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useSecurityValidation } from '@/hooks/useSecurityValidation';
 
 const proposalSchema = z.object({
   client_id: z.string().min(1, 'Cliente é obrigatório'),
@@ -49,6 +50,7 @@ interface ProposalFormProps {
 const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
   const { createProposal, updateProposal, sendProposal } = useProposals();
   const { toast } = useToast();
+  const { canAccessResource, validateUserAccess } = useSecurityValidation();
   const [isNotifying, setIsNotifying] = useState(false);
   const { items, addItem, updateItem, deleteItem } = useProposalItems(proposal?.id || null);
   const { changes, isLoading: changesLoading, logMultipleChanges } = useProposalChanges(proposal?.id || null);
@@ -56,6 +58,14 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
   const [showItemForm, setShowItemForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [tempItems, setTempItems] = useState<any[]>([]);
+
+  // Validação de segurança para propostas existentes
+  useEffect(() => {
+    if (proposal && !canAccessResource(proposal.user_id)) {
+      onClose();
+      return;
+    }
+  }, [proposal, canAccessResource, onClose]);
 
   const form = useForm<ProposalFormData>({
     resolver: zodResolver(proposalSchema),
