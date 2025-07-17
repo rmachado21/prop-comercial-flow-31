@@ -5,6 +5,7 @@ import { Building2, MapPin, Phone, User } from 'lucide-react';
 import { Proposal } from '@/hooks/useProposals';
 import StatusSelector from './StatusSelector';
 import ProposalActions from './ProposalActions';
+import { ProposalPortalQuickLink } from './ProposalPortalQuickLink';
 
 interface ProposalCardProps {
   proposal: Proposal;
@@ -115,6 +116,11 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                 onExportPDF={onExportPDF}
               />
             </div>
+            
+            {/* Portal Link para Mobile */}
+            <div className="pt-2 border-t border-border">
+              <ProposalPortalQuickLink proposalId={proposal.id} />
+            </div>
           </div>
         ) : showGridLayout ? (
           // Layout em grid para desktop - redesenhado
@@ -193,6 +199,11 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                 onExportPDF={onExportPDF}
               />
             </div>
+            
+            {/* Portal Link para Grid */}
+            <div className="pt-2 border-t border-border">
+              <ProposalPortalQuickLink proposalId={proposal.id} />
+            </div>
           </div>
         ) : (
           // Layout em lista para desktop - redesenhado
@@ -250,33 +261,38 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                       </div>
                     </>
                   )}
-                </div>
-              </div>
-              
-              <div className="text-right flex-shrink-0">
-                <p className="font-bold text-xl text-foreground">
-                  R$ {proposal.total_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-                <p className="text-xs text-muted-foreground">Valor Total</p>
-              </div>
-            </div>
+                 </div>
+                 
+                 {/* Portal Link para Lista */}
+                 <div className="mt-2">
+                   <ProposalPortalQuickLink proposalId={proposal.id} />
+                 </div>
+               </div>
+               
+               <div className="text-right flex-shrink-0">
+                 <p className="font-bold text-xl text-foreground">
+                   R$ {proposal.total_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                 </p>
+                 <p className="text-xs text-muted-foreground">Valor Total</p>
+               </div>
+             </div>
 
-            <div className="flex items-center gap-3 ml-6 flex-shrink-0">
-              <StatusSelector
-                currentStatus={proposal.status}
-                onStatusChange={(newStatus) => onStatusChange(proposal.id, newStatus)}
-              />
-              <ProposalActions
-                proposal={proposal}
-                isMobile={isMobile}
-                onView={onView}
-                onEdit={onEdit}
-                onEmail={onEmail}
-                onWhatsApp={onWhatsApp}
-                onExportPDF={onExportPDF}
-              />
-            </div>
-          </div>
+             <div className="flex items-center gap-3 ml-6 flex-shrink-0">
+               <StatusSelector
+                 currentStatus={proposal.status}
+                 onStatusChange={(newStatus) => onStatusChange(proposal.id, newStatus)}
+               />
+               <ProposalActions
+                 proposal={proposal}
+                 isMobile={isMobile}
+                 onView={onView}
+                 onEdit={onEdit}
+                 onEmail={onEmail}
+                 onWhatsApp={onWhatsApp}
+                 onExportPDF={onExportPDF}
+               />
+             </div>
+           </div>
         )}
       </CardContent>
     </Card>
