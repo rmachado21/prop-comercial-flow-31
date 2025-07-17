@@ -31,12 +31,11 @@ export const ProposalPortalQuickLink: React.FC<ProposalPortalQuickLinkProps> = (
         .select('token, expires_at')
         .eq('proposal_id', proposalId)
         .eq('purpose', 'portal')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .single();
 
-      if (checkError) {
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = not found
         console.error('Error checking existing token:', checkError);
+        return;
       }
 
       let token = existingToken?.token;

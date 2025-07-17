@@ -29,12 +29,11 @@ export const ProposalPortalLink: React.FC<ProposalPortalLinkProps> = ({ proposal
         .select('token, expires_at')
         .eq('proposal_id', proposalId)
         .eq('purpose', 'portal')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .single();
 
-      if (checkError) {
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = not found
         console.error('Error checking existing token:', checkError);
+        throw checkError;
       }
 
       let token = existingToken?.token;
@@ -55,9 +54,9 @@ export const ProposalPortalLink: React.FC<ProposalPortalLinkProps> = ({ proposal
 
         if (updateError) {
           console.error('Error extending token:', updateError);
-        } else {
-          token = existingToken.token;
-        }
+          throw updateError;
+        } 
+        token = existingToken.token;
       }
       // Only create new token if none exists
       else {
