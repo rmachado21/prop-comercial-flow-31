@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Filter, Grid, List } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProposalFiltersProps {
   searchTerm: string;
@@ -21,6 +22,8 @@ const ProposalFilters: React.FC<ProposalFiltersProps> = ({
   onStatusChange,
   onViewModeChange,
 }) => {
+  const isMobile = useIsMobile();
+  
   return (
     <Card className="mb-6">
       <CardContent className="p-6">
@@ -54,22 +57,24 @@ const ProposalFilters: React.FC<ProposalFiltersProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => onViewModeChange('grid')}
-            >
-              <Grid className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => onViewModeChange('list')}
-            >
-              <List className="w-4 h-4" />
-            </Button>
-          </div>
+          {!isMobile && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => onViewModeChange('grid')}
+              >
+                <Grid className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => onViewModeChange('list')}
+              >
+                <List className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
