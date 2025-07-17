@@ -233,7 +233,7 @@ export type Database = {
           new_value: string | null
           old_value: string | null
           proposal_id: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           change_type: string
@@ -243,7 +243,7 @@ export type Database = {
           new_value?: string | null
           old_value?: string | null
           proposal_id: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           change_type?: string
@@ -253,7 +253,7 @@ export type Database = {
           new_value?: string | null
           old_value?: string | null
           proposal_id?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -313,6 +313,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "proposal_tokens"
             referencedColumns: ["token"]
+          },
+        ]
+      }
+      proposal_client_notifications: {
+        Row: {
+          client_email: string
+          id: string
+          notification_type: string
+          proposal_id: string
+          sent_at: string
+          status: string
+        }
+        Insert: {
+          client_email: string
+          id?: string
+          notification_type: string
+          proposal_id: string
+          sent_at?: string
+          status?: string
+        }
+        Update: {
+          client_email?: string
+          id?: string
+          notification_type?: string
+          proposal_id?: string
+          sent_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_client_notifications_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -427,6 +462,7 @@ export type Database = {
         Row: {
           access_count: number | null
           client_ip: unknown | null
+          client_seen_update: boolean | null
           client_user_agent: string | null
           created_at: string | null
           expires_at: string
@@ -441,6 +477,7 @@ export type Database = {
         Insert: {
           access_count?: number | null
           client_ip?: unknown | null
+          client_seen_update?: boolean | null
           client_user_agent?: string | null
           created_at?: string | null
           expires_at?: string
@@ -455,6 +492,7 @@ export type Database = {
         Update: {
           access_count?: number | null
           client_ip?: unknown | null
+          client_seen_update?: boolean | null
           client_user_agent?: string | null
           created_at?: string | null
           expires_at?: string
@@ -496,6 +534,7 @@ export type Database = {
           terms_and_conditions: string | null
           title: string
           total_amount: number
+          updated_after_comment: boolean | null
           updated_at: string
           user_id: string
           validity_days: number | null
@@ -519,6 +558,7 @@ export type Database = {
           terms_and_conditions?: string | null
           title: string
           total_amount?: number
+          updated_after_comment?: boolean | null
           updated_at?: string
           user_id: string
           validity_days?: number | null
@@ -542,6 +582,7 @@ export type Database = {
           terms_and_conditions?: string | null
           title?: string
           total_amount?: number
+          updated_after_comment?: boolean | null
           updated_at?: string
           user_id?: string
           validity_days?: number | null

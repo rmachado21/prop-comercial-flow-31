@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProposalPortal } from '@/hooks/useProposalPortal';
+import { ProposalUpdateBanner } from '@/components/Proposals/ProposalUpdateBanner';
 import { 
   CheckCircle, 
   XCircle, 
@@ -43,6 +44,7 @@ export default function ProposalPortal() {
   const [history, setHistory] = useState<any[]>([]);
   const [comments, setComments] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [hasUpdate, setHasUpdate] = useState(false);
   
   // Form states
   const [clientName, setClientName] = useState<string>('');
@@ -71,6 +73,7 @@ export default function ProposalPortal() {
         setProposal(proposal);
         setClientName(proposal.client?.name || '');
         setClientEmail(proposal.client?.email || '');
+        setHasUpdate(proposal.updated_after_comment && !proposal.client_seen_update);
         
         if (proposal.status === 'approved') {
           setState('approved');
@@ -99,6 +102,18 @@ export default function ProposalPortal() {
       isMounted = false;
     };
   }, [token]);
+
+  const handleMarkUpdateAsSeen = async () => {
+    if (!token) return;
+    
+    try {
+      // The validateToken function will automatically mark as seen when accessing
+      await validateToken(token);
+      setHasUpdate(false);
+    } catch (error) {
+      console.error('Error marking update as seen:', error);
+    }
+  };
 
   const handleApprove = async () => {
     if (!token) return;
@@ -205,6 +220,11 @@ export default function ProposalPortal() {
   return (
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-6xl mx-auto space-y-6">
+        <ProposalUpdateBanner 
+          hasUpdate={hasUpdate}
+          onMarkAsSeen={handleMarkUpdateAsSeen}
+        />
+        
         {/* Header */}
         <Card>
           <CardContent className="pt-6">

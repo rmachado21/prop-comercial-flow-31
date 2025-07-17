@@ -149,7 +149,20 @@ export const useProposals = () => {
   };
 
   const updateProposal = async (id: string, proposalData: Partial<Proposal>) => {
+    if (!user) throw new Error('User not authenticated');
+
     try {
+      // Get the current proposal to check if it was contested
+      const { data: currentProposal, error: fetchError } = await supabase
+        .from('proposals')
+        .select('status, client_id, clients(name, email), title, proposal_number')
+        .eq('id', id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const wasContested = currentProposal.status === 'contested';
+
       // Create a clean data object excluding read-only fields and relations
       const cleanProposalData = {
         title: proposalData.title,
@@ -164,9 +177,10 @@ export const useProposals = () => {
         total_amount: proposalData.total_amount,
         validity_days: proposalData.validity_days,
         expiry_date: proposalData.expiry_date,
-        
         terms_and_conditions: proposalData.terms_and_conditions,
         updated_at: new Date().toISOString(),
+        // Mark as updated after comment if it was contested
+        updated_after_comment: wasContested ? true : undefined,
       };
 
       // Remove undefined fields
@@ -182,6 +196,41 @@ export const useProposals = () => {
         .eq('id', id);
 
       if (error) throw error;
+
+      // If proposal was contested and now updated, notify client
+      if (wasContested && currentProposal.clients?.email) {
+        try {
+          // Get the proposal portal token
+          const { data: tokenData } = await supabase
+            .from('proposal_tokens')
+            .select('token')
+            .eq('proposal_id', id)
+            .eq('purpose', 'portal')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+          if (tokenData) {
+            const proposalUrl = `${window.location.origin}/portal/${tokenData.token}`;
+            
+            await supabase.functions.invoke('notify-client-update', {
+              body: {
+                proposalId: id,
+                clientEmail: currentProposal.clients.email,
+                clientName: currentProposal.clients.name,
+                proposalNumber: currentProposal.proposal_number,
+                proposalTitle: currentProposal.title,
+                proposalUrl: proposalUrl,
+              },
+            });
+            
+            console.log('Cliente notificado sobre atualização da proposta');
+          }
+        } catch (notifyError) {
+          console.error('Erro ao notificar cliente:', notifyError);
+          // Continue even if notification fails
+        }
+      }
 
       await fetchProposals();
       toast({

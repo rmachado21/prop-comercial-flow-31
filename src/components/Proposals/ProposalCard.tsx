@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building2, MapPin, Phone, User } from 'lucide-react';
+import { Building2, MapPin, Phone, User, AlertCircle } from 'lucide-react';
 import { Proposal } from '@/hooks/useProposals';
 import StatusSelector from './StatusSelector';
 import ProposalActions from './ProposalActions';
@@ -107,9 +107,14 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
             {/* Header com cliente como título principal */}
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-lg text-foreground truncate leading-tight mb-1">
-                  {proposal.client?.name || 'Cliente não informado'}
-                </h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-lg text-foreground truncate leading-tight mb-1">
+                    {proposal.client?.name || 'Cliente não informado'}
+                  </h3>
+                  {proposal.status === 'contested' && (
+                    <AlertCircle className="h-4 w-4 text-orange-500" title="Proposta contestada pelo cliente" />
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground truncate">{proposal.proposal_number}</p>
               </div>
               <div className="flex-shrink-0">

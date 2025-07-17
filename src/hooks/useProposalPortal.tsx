@@ -10,6 +10,8 @@ export interface ProposalPortalData {
   total_amount: number;
   status: string;
   created_at: string;
+  updated_after_comment?: boolean;
+  client_seen_update?: boolean;
   client: {
     name: string;
     email: string;
@@ -93,6 +95,7 @@ export const useProposalPortal = () => {
           created_at,
           user_id,
           terms_and_conditions,
+          updated_after_comment,
           client:clients(name, email, phone)
         `)
         .eq('id', tokenData.proposal_id)
@@ -120,12 +123,14 @@ export const useProposalPortal = () => {
         throw itemsError;
       }
 
-      // Update token access tracking
+      // Update token access tracking and mark as seen if there were updates
       await supabase
         .from('proposal_tokens')
         .update({ 
           last_accessed_at: new Date().toISOString(),
-          access_count: (tokenData.access_count || 0) + 1
+          access_count: (tokenData.access_count || 0) + 1,
+          // Mark update as seen if proposal was updated after comment
+          client_seen_update: proposalData.updated_after_comment ? true : tokenData.client_seen_update,
         })
         .eq('token', token);
 
@@ -134,7 +139,8 @@ export const useProposalPortal = () => {
         proposal: {
           ...proposalData,
           company: companyData,
-          items: itemsData || []
+          items: itemsData || [],
+          client_seen_update: tokenData.client_seen_update
         }
       };
 

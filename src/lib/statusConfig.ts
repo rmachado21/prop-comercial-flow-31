@@ -1,3 +1,21 @@
+export const statusConfig = {
+  draft: { label: 'Rascunho', variant: 'secondary' as const },
+  sent: { label: 'Enviada', variant: 'default' as const },
+  approved: { label: 'Aprovada', variant: 'success' as const },
+  rejected: { label: 'Rejeitada', variant: 'destructive' as const },
+  expired: { label: 'Expirada', variant: 'outline' as const },
+  nfe_issued: { label: 'NF-e Emitida', variant: 'success' as const },
+  contested: { label: 'Contestada', variant: 'warning' as const },
+};
+
+export const getStatusLabel = (status: string) => {
+  return statusConfig[status as keyof typeof statusConfig]?.label || status;
+};
+
+export const getStatusVariant = (status: string) => {
+  return statusConfig[status as keyof typeof statusConfig]?.variant || 'outline';
+};
+
 export const getStatusConfig = (status: string) => {
   const statusOptions = {
     'draft': { 
