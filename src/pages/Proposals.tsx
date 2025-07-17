@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus, Grid, List } from 'lucide-react';
 import { useProposals, Proposal } from '@/hooks/useProposals';
@@ -15,11 +15,12 @@ import ProposalFilters from '@/components/Proposals/ProposalFilters';
 import ProposalCard from '@/components/Proposals/ProposalCard';
 import ProposalEmptyState from '@/components/Proposals/ProposalEmptyState';
 import ProposalLoadingState from '@/components/Proposals/ProposalLoadingState';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Proposals: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
   const { proposals, isLoading, updateProposalStatus } = useProposals();
   const { exportToPDF } = useProposalExport();
@@ -32,6 +33,16 @@ const Proposals: React.FC = () => {
   const [viewingProposal, setViewingProposal] = useState<Proposal | null>(null);
   const [emailingProposal, setEmailingProposal] = useState<Proposal | null>(null);
   const [whatsappingProposal, setWhatsappingProposal] = useState<Proposal | null>(null);
+
+  // Verificar se chegamos aqui para editar uma proposta específica
+  useEffect(() => {
+    if (location.state?.editingProposal) {
+      setEditingProposal(location.state.editingProposal);
+      setShowForm(true);
+      // Limpar o estado para evitar reprocessamento
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
 
   const filteredProposals = proposals.filter(proposal => {
     const matchesSearch = 

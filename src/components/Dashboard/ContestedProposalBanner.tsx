@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, Eye, ExternalLink, X } from 'lucide-react';
+import { AlertTriangle, Eye, ExternalLink, X, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +20,11 @@ const ContestedProposalBanner = () => {
 
   const handleViewProposal = (proposal: ContestedProposal) => {
     markAsRead(proposal.id);
-    navigate(`/proposals/${proposal.id}`);
+    navigate(`/propostas/ver/${proposal.id}`);
+  };
+
+  const handleEditProposal = (proposal: ContestedProposal) => {
+    navigate('/propostas', { state: { editingProposal: proposal } });
   };
 
   const truncateComment = (comment: string, maxLength: number = 100) => {
@@ -93,13 +97,24 @@ const ContestedProposalBanner = () => {
                       variant="outline"
                       onClick={() => markAsRead(proposal.id)}
                       className="h-8 px-2"
+                      title="Marcar como vista"
                     >
                       <Eye className="h-3 w-3" />
                     </Button>
                     <Button
                       size="sm"
+                      variant="outline"
+                      onClick={() => handleEditProposal(proposal)}
+                      className="h-8 px-2"
+                      title="Editar proposta"
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      size="sm"
                       onClick={() => handleViewProposal(proposal)}
                       className="h-8 px-2"
+                      title="Ver proposta"
                     >
                       <ExternalLink className="h-3 w-3" />
                     </Button>
@@ -114,7 +129,7 @@ const ContestedProposalBanner = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/proposals?status=contested')}
+                onClick={() => navigate('/propostas?status=contested')}
                 className="w-full"
               >
                 Ver todas as {unreadCount} propostas contestadas

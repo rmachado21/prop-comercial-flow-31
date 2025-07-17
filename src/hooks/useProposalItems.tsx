@@ -20,7 +20,6 @@ export const useProposalItems = (proposalId: string | null) => {
   const fetchItems = async () => {
     if (!proposalId) return;
     
-    console.log('Fetching items for proposal:', proposalId);
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -29,10 +28,8 @@ export const useProposalItems = (proposalId: string | null) => {
         .eq('proposal_id', proposalId)
         .order('sort_order', { ascending: true });
 
-      console.log('Proposal items query result:', { data, error });
       if (error) throw error;
       setItems(data || []);
-      console.log('Items set to state:', data || []);
     } catch (error) {
       console.error('Error fetching proposal items:', error);
       toast({
