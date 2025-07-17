@@ -24,6 +24,7 @@ import Navbar from '@/components/Navbar';
 import ClientSelector from '@/components/Proposals/ClientSelector';
 import ProposalItemForm from '@/components/Proposals/ProposalItemForm';
 import ProposalChangeLog from '@/components/Proposals/ProposalChangeLog';
+import { ProposalPortalLink } from '@/components/Proposals/ProposalPortalLink';
 import { getStatusConfig } from '@/lib/statusConfig';
 
 const proposalSchema = z.object({
@@ -465,6 +466,11 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
                   </div>
                 </CardContent>
               </Card>
+              
+              {/* Portal Link - Only show for existing proposals */}
+              {proposal && (
+                <ProposalPortalLink proposalId={proposal.id} />
+              )}
               
               {/* Change Log - Only show for existing proposals */}
               {proposal && (

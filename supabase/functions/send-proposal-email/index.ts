@@ -145,27 +145,26 @@ Atenciosamente,
 Equipe Comercial
     `.trim();
 
-    // Generate approval token using service role
-    console.log('=== GERANDO TOKEN DE APROVAÇÃO ===');
-    let approvalLink = null;
-    let commentsLink = null;
+    // Generate portal token using service role
+    console.log('=== GERANDO TOKEN DO PORTAL ===');
+    let portalLink = null;
     try {
       const { data: tokenData, error: tokenError } = await supabaseAdmin
-        .from('proposal_approval_tokens')
+        .from('proposal_tokens')
         .insert({
           proposal_id: proposalId,
+          purpose: 'portal',
         })
         .select('token')
         .single();
 
       if (tokenError) {
-        console.error('Erro ao criar token de aprovação:', tokenError);
+        console.error('Erro ao criar token do portal:', tokenError);
       } else {
-        // Create approval and comments links
+        // Create portal link
         const baseUrl = Deno.env.get('SITE_URL') || 'https://propostaonline.app.br';
-        approvalLink = `${baseUrl}/aprovacao/${tokenData.token}`;
-        commentsLink = `${baseUrl}/observacoes/${tokenData.token}`;
-        console.log('Token de aprovação criado com sucesso:', tokenData.token);
+        portalLink = `${baseUrl}/proposta/${tokenData.token}`;
+        console.log('Token do portal criado com sucesso:', tokenData.token);
       }
     } catch (error) {
       console.error('Erro ao gerar token:', error);
@@ -182,26 +181,21 @@ Equipe Comercial
             <h2 style="color: #1f2937; margin-bottom: 20px; text-align: center;">Proposta Comercial</h2>
             <div style="white-space: pre-line; line-height: 1.6; color: #374151;">${message || defaultMessage}</div>
             
-            ${approvalLink && commentsLink ? `
+            ${portalLink ? `
             <div style="text-align: center; margin: 40px 0;">
-              <div style="margin-bottom: 15px;">
-                <a href="${approvalLink}" 
-                   style="background-color: #22c55e; color: white; padding: 12px 24px; 
-                          text-decoration: none; border-radius: 6px; font-weight: bold;
-                          display: inline-block; margin-right: 10px;">
-                  ✅ Aprovar Proposta
+              <div style="margin-bottom: 20px;">
+                <a href="${portalLink}" 
+                   style="background-color: #3b82f6; color: white; padding: 15px 30px; 
+                          text-decoration: none; border-radius: 8px; font-weight: bold;
+                          display: inline-block; font-size: 16px;">
+                  📋 Visualizar Proposta
                 </a>
               </div>
-              <div>
-                <a href="${commentsLink}" 
-                   style="background-color: #3b82f6; color: white; padding: 12px 24px; 
-                          text-decoration: none; border-radius: 6px; font-weight: bold;
-                          display: inline-block;">
-                  💬 Adicionar Observações
-                </a>
-              </div>
-              <p style="font-size: 12px; color: #6b7280; margin-top: 15px;">
-                Clique em "Aprovar" para aceitar a proposta ou "Adicionar Observações" para enviar comentários e/ou solicitar alterações.
+              <p style="font-size: 12px; color: #6b7280; margin-top: 10px;">
+                Acesse o portal completo para visualizar, aprovar ou adicionar observações à proposta.
+              </p>
+              <p style="font-size: 11px; color: #9ca3af; margin-top: 5px;">
+                Link: ${portalLink}
               </p>
             </div>
             ` : ''}

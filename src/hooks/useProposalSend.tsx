@@ -62,7 +62,7 @@ export const useProposalSend = () => {
     }
   };
 
-  const generateWhatsAppMessage = (proposal: Proposal) => {
+  const generateWhatsAppMessage = (proposal: Proposal, portalLink?: string) => {
     const clientName = proposal.client?.name || 'Cliente';
     const message = `
 Olá ${clientName}! 👋
@@ -76,6 +76,8 @@ ${proposal.validity_days ? `⏰ Validade: ${proposal.validity_days} dias` : ''}
 
 ${proposal.description ? `\n📝 ${proposal.description}` : ''}
 
+${portalLink ? `\n🔗 *Acesse sua proposta online:*\n${portalLink}\n\nNo portal você pode:\n• Visualizar todos os detalhes\n• Aprovar a proposta\n• Adicionar observações\n• Imprimir em PDF` : ''}
+
 Ficamos à disposição para esclarecimentos!
 
 *Equipe Comercial*
@@ -86,7 +88,27 @@ Ficamos à disposição para esclarecimentos!
 
   const openWhatsApp = async (proposal: Proposal, phoneNumber: string) => {
     try {
-      const message = generateWhatsAppMessage(proposal);
+      // Generate portal token first
+      let portalLink = null;
+      try {
+        const { data: tokenData, error: tokenError } = await supabase
+          .from('proposal_tokens')
+          .insert({
+            proposal_id: proposal.id,
+            purpose: 'portal',
+          })
+          .select('token')
+          .single();
+
+        if (!tokenError && tokenData) {
+          const baseUrl = window.location.origin;
+          portalLink = `${baseUrl}/proposta/${tokenData.token}`;
+        }
+      } catch (tokenError) {
+        console.error('Error generating portal token:', tokenError);
+      }
+
+      const message = generateWhatsAppMessage(proposal, portalLink);
       
       // Clean phone number (remove spaces, dashes, parentheses)
       const cleanPhone = phoneNumber.replace(/[\s\-\(\)]/g, '');
