@@ -286,14 +286,10 @@ export default function ProposalPortal() {
 
         {/* Main Content */}
         <Tabs defaultValue="proposal" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="proposal">
               <FileText className="w-4 h-4 mr-2" />
               Proposta
-            </TabsTrigger>
-            <TabsTrigger value="actions">
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Ações
             </TabsTrigger>
             <TabsTrigger value="comments">
               <MessageCircle className="w-4 h-4 mr-2" />
@@ -419,62 +415,6 @@ export default function ProposalPortal() {
             </Card>
           </TabsContent>
 
-          {/* Actions */}
-          <TabsContent value="actions" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Ações Disponíveis</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {state === 'approved' ? (
-                  <div className="text-center space-y-4">
-                    <CheckCircle className="w-16 h-16 mx-auto text-success" />
-                    <div>
-                      <h3 className="text-lg font-semibold text-success">Proposta Aprovada!</h3>
-                      <p className="text-muted-foreground">
-                        Esta proposta foi aprovada. A empresa entrará em contato em breve.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="actionClientName">Seu Nome (opcional)</Label>
-                      <Input
-                        id="actionClientName"
-                        value={clientName}
-                        onChange={(e) => setClientName(e.target.value)}
-                        placeholder="Digite seu nome para confirmação"
-                      />
-                    </div>
-                    
-                    <Button 
-                      onClick={handleApprove}
-                      disabled={isSubmitting}
-                      className="w-full"
-                      size="lg"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Processando...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Aprovar Proposta
-                        </>
-                      )}
-                    </Button>
-                    
-                    <p className="text-xs text-muted-foreground text-center">
-                      Ao aprovar, você confirma que aceita todos os termos e condições.
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* Comments */}
           <TabsContent value="comments" className="space-y-6">
