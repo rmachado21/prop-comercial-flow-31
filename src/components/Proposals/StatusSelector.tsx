@@ -24,7 +24,7 @@ const StatusSelector: React.FC<StatusSelectorProps> = ({
       value: 'sent', 
       label: 'Enviada', 
       bgClass: 'bg-[hsl(var(--status-sent))]',
-      textClass: 'text-[hsl(var(--status-sent-foreground))]'
+      textClass: 'text-white'
     },
     { 
       value: 'approved', 
