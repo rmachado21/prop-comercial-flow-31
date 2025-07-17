@@ -6,9 +6,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Mail, Clock, CheckCircle, XCircle, AlertCircle, Calendar } from 'lucide-react';
+import { Mail, Clock, CheckCircle, XCircle, AlertCircle, Calendar, Building2 } from 'lucide-react';
 import { Proposal } from '@/hooks/useProposals';
 import { useProposalSend, ProposalSend } from '@/hooks/useProposalSend';
+import { useCompanyData } from '@/hooks/useCompanyData';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -26,9 +27,11 @@ const ProposalEmailDialog: React.FC<ProposalEmailDialogProps> = ({
   onSuccess,
 }) => {
   const { sendProposalByEmail, getProposalSends, isSending } = useProposalSend();
+  const { company } = useCompanyData();
   const [recipient, setRecipient] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [senderName, setSenderName] = useState('');
   const [sendHistory, setSendHistory] = useState<ProposalSend[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
@@ -36,6 +39,7 @@ const ProposalEmailDialog: React.FC<ProposalEmailDialogProps> = ({
     if (proposal && open) {
       setRecipient(proposal.client?.email || '');
       setSubject(`Proposta Comercial - ${proposal.proposal_number}`);
+      setSenderName(company?.name || 'Propostas Online');
       
       const defaultMessage = `
 Prezado(a) ${proposal.client?.name || 'Cliente'},
@@ -57,7 +61,7 @@ Equipe Comercial
       setMessage(defaultMessage);
       loadSendHistory();
     }
-  }, [proposal, open]);
+  }, [proposal, open, company]);
 
   const loadSendHistory = async () => {
     if (!proposal) return;
@@ -76,7 +80,7 @@ Equipe Comercial
   const handleSend = async () => {
     if (!proposal || !recipient) return;
 
-    const result = await sendProposalByEmail(proposal, recipient, subject, message);
+    const result = await sendProposalByEmail(proposal, recipient, subject, message, senderName);
 
     if (result.success) {
       await loadSendHistory(); // Refresh history after sending
@@ -113,6 +117,7 @@ Equipe Comercial
     setRecipient('');
     setSubject('');
     setMessage('');
+    setSenderName('');
   };
 
   if (!proposal) return null;
@@ -143,6 +148,19 @@ Equipe Comercial
                 onChange={(e) => setRecipient(e.target.value)}
                 placeholder="cliente@exemplo.com"
                 required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="email-sender" className="flex items-center gap-2">
+                <Building2 className="w-4 h-4" />
+                Remetente
+              </Label>
+              <Input
+                id="email-sender"
+                value={senderName}
+                onChange={(e) => setSenderName(e.target.value)}
+                placeholder="Nome da empresa"
               />
             </div>
 
