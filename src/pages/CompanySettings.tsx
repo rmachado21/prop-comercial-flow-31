@@ -82,7 +82,14 @@ const CompanySettings = () => {
   };
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: 'Erro',
+        description: 'Você precisa estar logado para salvar as informações',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setSaving(true);
     try {
