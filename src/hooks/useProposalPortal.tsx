@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -53,7 +53,7 @@ export const useProposalPortal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const validateToken = async (token: string): Promise<{
+  const validateToken = useCallback(async (token: string): Promise<{
     isValid: boolean;
     proposal?: ProposalPortalData;
     error?: string;
@@ -147,9 +147,9 @@ export const useProposalPortal = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const approveProposal = async (token: string, clientName?: string): Promise<{
+  const approveProposal = useCallback(async (token: string, clientName?: string): Promise<{
     success: boolean;
     error?: string;
   }> => {
@@ -191,9 +191,9 @@ export const useProposalPortal = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, []);
 
-  const submitComments = async (
+  const submitComments = useCallback(async (
     token: string,
     clientName: string,
     clientEmail: string,
@@ -242,9 +242,9 @@ export const useProposalPortal = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, []);
 
-  const getProposalHistory = async (proposalId: string): Promise<ProposalChange[]> => {
+  const getProposalHistory = useCallback(async (proposalId: string): Promise<ProposalChange[]> => {
     try {
       const { data, error } = await supabase
         .from('proposal_changes')
@@ -262,9 +262,9 @@ export const useProposalPortal = () => {
       console.error('Error fetching proposal history:', error);
       return [];
     }
-  };
+  }, []);
 
-  const getProposalComments = async (proposalId: string): Promise<ProposalComment[]> => {
+  const getProposalComments = useCallback(async (proposalId: string): Promise<ProposalComment[]> => {
     try {
       const { data, error } = await supabase
         .from('proposal_client_comments')
@@ -282,7 +282,7 @@ export const useProposalPortal = () => {
       console.error('Error fetching proposal comments:', error);
       return [];
     }
-  };
+  }, []);
 
   return {
     validateToken,

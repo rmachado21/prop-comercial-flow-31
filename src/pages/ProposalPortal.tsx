@@ -56,10 +56,16 @@ export default function ProposalPortal() {
       return;
     }
 
+    let isMounted = true;
+
     const loadPortalData = async () => {
+      if (!isMounted) return;
+      
       setState('loading');
       
       const { isValid, proposal, error } = await validateToken(token);
+      
+      if (!isMounted) return;
       
       if (isValid && proposal) {
         setProposal(proposal);
@@ -76,8 +82,10 @@ export default function ProposalPortal() {
         const historyData = await getProposalHistory(proposal.id);
         const commentsData = await getProposalComments(proposal.id);
         
-        setHistory(historyData);
-        setComments(commentsData);
+        if (isMounted) {
+          setHistory(historyData);
+          setComments(commentsData);
+        }
         
       } else {
         setState('invalid');
@@ -86,7 +94,11 @@ export default function ProposalPortal() {
     };
 
     loadPortalData();
-  }, [token, validateToken, getProposalHistory, getProposalComments]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token]);
 
   const handleApprove = async () => {
     if (!token) return;
