@@ -54,7 +54,7 @@ const StatusSelector: React.FC<StatusSelectorProps> = ({
       value: 'contested', 
       label: 'Contestada', 
       bgClass: 'bg-[hsl(var(--status-contested))]',
-      textClass: 'text-[hsl(var(--status-contested-foreground))]'
+      textClass: 'text-white'
     },
   ] as const;
 
