@@ -6,7 +6,6 @@ import { Proposal } from '@/hooks/useProposals';
 import StatusSelector from './StatusSelector';
 import ProposalActions from './ProposalActions';
 import { ProposalPortalQuickLink } from './ProposalPortalQuickLink';
-
 interface ProposalCardProps {
   proposal: Proposal;
   isMobile: boolean;
@@ -18,7 +17,6 @@ interface ProposalCardProps {
   onExportPDF: (proposal: Proposal) => void;
   onStatusChange: (id: string, status: string) => void;
 }
-
 const ProposalCard: React.FC<ProposalCardProps> = ({
   proposal,
   isMobile,
@@ -28,9 +26,8 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
   onEmail,
   onWhatsApp,
   onExportPDF,
-  onStatusChange,
+  onStatusChange
 }) => {
-
   // Para o modo grid em desktop, usar layout em card
   const showGridLayout = viewMode === 'grid' && !isMobile;
 
@@ -53,13 +50,11 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
     if (proposal.client?.state) parts.push(proposal.client.state);
     return parts.join(', ');
   };
-
-  return (
-    <Card className="hover:shadow-md transition-shadow">
+  return <Card className="hover:shadow-md transition-shadow">
       <CardContent className={showGridLayout ? "p-4" : "p-3"}>
-        {isMobile ? (
-          // Layout compacto para mobile
-          <div className="space-y-3">
+        {isMobile ?
+      // Layout compacto para mobile
+      <div className="space-y-3">
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-base text-foreground truncate mb-1">
@@ -71,29 +66,25 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                 
                 {/* Informações do cliente em mobile */}
                 <div className="space-y-1">
-                  {proposal.client?.cnpj && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  {proposal.client?.cnpj && <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Building2 className="w-3 h-3" />
                       <span>{formatCNPJ(proposal.client.cnpj)}</span>
-                    </div>
-                  )}
-                  {proposal.client?.contact_name && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    </div>}
+                  {proposal.client?.contact_name && <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <User className="w-3 h-3" />
                       <span>{proposal.client.contact_name}</span>
-                    </div>
-                  )}
-                  {getClientLocation() && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    </div>}
+                  {getClientLocation() && <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <MapPin className="w-3 h-3" />
                       <span>{getClientLocation()}</span>
-                    </div>
-                  )}
+                    </div>}
                 </div>
               </div>
               <div className="text-right flex-shrink-0 ml-3">
                 <p className="font-bold text-lg text-foreground">
-                  R$ {proposal.total_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R$ {proposal.total_amount.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2
+              })}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {new Date(proposal.created_at).toLocaleDateString('pt-BR')}
@@ -102,29 +93,17 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
             </div>
             
             <div className="flex items-center justify-between pt-2 border-t border-border">
-              <StatusSelector
-                currentStatus={proposal.status}
-                onStatusChange={(newStatus) => onStatusChange(proposal.id, newStatus)}
-              />
-              <ProposalActions
-                proposal={proposal}
-                isMobile={isMobile}
-                onView={onView}
-                onEdit={onEdit}
-                onEmail={onEmail}
-                onWhatsApp={onWhatsApp}
-                onExportPDF={onExportPDF}
-              />
+              <StatusSelector currentStatus={proposal.status} onStatusChange={newStatus => onStatusChange(proposal.id, newStatus)} />
+              <ProposalActions proposal={proposal} isMobile={isMobile} onView={onView} onEdit={onEdit} onEmail={onEmail} onWhatsApp={onWhatsApp} onExportPDF={onExportPDF} />
             </div>
             
             {/* Portal Link para Mobile */}
             <div className="pt-2 border-t border-border">
               <ProposalPortalQuickLink proposalId={proposal.id} />
             </div>
-          </div>
-        ) : showGridLayout ? (
-          // Layout em grid para desktop - redesenhado
-          <div className="h-56 flex flex-col">
+          </div> : showGridLayout ?
+      // Layout em grid para desktop - redesenhado
+      <div className="h-56 flex flex-col">
             {/* Header com cliente como título principal */}
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1 min-w-0">
@@ -134,39 +113,28 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                 <p className="text-sm text-muted-foreground truncate">{proposal.proposal_number}</p>
               </div>
               <div className="flex-shrink-0">
-                <StatusSelector
-                  currentStatus={proposal.status}
-                  onStatusChange={(newStatus) => onStatusChange(proposal.id, newStatus)}
-                />
+                <StatusSelector currentStatus={proposal.status} onStatusChange={newStatus => onStatusChange(proposal.id, newStatus)} />
               </div>
             </div>
             
             {/* Informações do cliente */}
             <div className="flex-1 space-y-2 mb-3">
-              {proposal.client?.cnpj && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {proposal.client?.cnpj && <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Building2 className="w-4 h-4" />
                   <span>{formatCNPJ(proposal.client.cnpj)}</span>
-                </div>
-              )}
-               {proposal.client?.phone && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                </div>}
+               {proposal.client?.phone && <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Phone className="w-4 h-4" />
                   <span>{formatPhone(proposal.client.phone)}</span>
-                </div>
-              )}
-              {proposal.client?.contact_name && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                </div>}
+              {proposal.client?.contact_name && <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <User className="w-4 h-4" />
                   <span>{proposal.client.contact_name}</span>
-                </div>
-              )}
-              {getClientLocation() && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                </div>}
+              {getClientLocation() && <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MapPin className="w-4 h-4" />
                   <span>{getClientLocation()}</span>
-                </div>
-              )}
+                </div>}
             </div>
             
             {/* Informações da proposta */}
@@ -186,28 +154,21 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Valor Total</p>
                 <p className="text-xl font-bold text-foreground">
-                  R$ {proposal.total_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R$ {proposal.total_amount.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2
+              })}
                 </p>
               </div>
-              <ProposalActions
-                proposal={proposal}
-                isMobile={false}
-                onView={onView}
-                onEdit={onEdit}
-                onEmail={onEmail}
-                onWhatsApp={onWhatsApp}
-                onExportPDF={onExportPDF}
-              />
+              <ProposalActions proposal={proposal} isMobile={false} onView={onView} onEdit={onEdit} onEmail={onEmail} onWhatsApp={onWhatsApp} onExportPDF={onExportPDF} />
             </div>
             
             {/* Portal Link para Grid */}
             <div className="pt-2 border-t border-border">
               <ProposalPortalQuickLink proposalId={proposal.id} />
             </div>
-          </div>
-        ) : (
-          // Layout em lista para desktop - redesenhado
-          <div className="flex items-center justify-between">
+          </div> :
+      // Layout em lista para desktop - redesenhado
+      <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1">
               <div className="flex-1 min-w-0">
                 {/* Cliente como título principal */}
@@ -218,49 +179,41 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                 {/* Linha com informações do cliente */}
                 <div className="flex items-center gap-3 text-sm text-muted-foreground mb-2">
                   <span className="font-medium">{proposal.proposal_number}</span>
-                  {proposal.client?.cnpj && (
-                    <>
+                  {proposal.client?.cnpj && <>
                       <span>•</span>
                       <div className="flex items-center gap-1">
                         <Building2 className="w-3 h-3" />
                         <span>{formatCNPJ(proposal.client.cnpj)}</span>
                       </div>
-                    </>
-                  )}
-                  {getClientLocation() && (
-                    <>
+                    </>}
+                  {getClientLocation() && <>
                       <span>•</span>
                       <div className="flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
                         <span>{getClientLocation()}</span>
                       </div>
-                    </>
-                  )}
+                    </>}
                 </div>
                 
                 {/* Linha com informações da proposta */}
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <span>{new Date(proposal.created_at).toLocaleDateString('pt-BR')}</span>
                   <span>•</span>
-                  <span>{proposal.validity_days ? `${proposal.validity_days} dias` : 'Indefinida'}</span>
-                  {proposal.client?.contact_name && (
-                    <>
-                      <span>•</span>
+                  
+                  {proposal.client?.contact_name && <>
+                      
                       <div className="flex items-center gap-1">
                         <User className="w-3 h-3" />
                         <span>{proposal.client.contact_name}</span>
                       </div>
-                    </>
-                  )}
-                  {proposal.client?.phone && (
-                    <>
+                    </>}
+                  {proposal.client?.phone && <>
                       <span>•</span>
                       <div className="flex items-center gap-1">
                         <Phone className="w-3 h-3" />
                         <span>{formatPhone(proposal.client.phone)}</span>
                       </div>
-                    </>
-                  )}
+                    </>}
                  </div>
                  
                  {/* Portal Link para Lista */}
@@ -271,32 +224,20 @@ const ProposalCard: React.FC<ProposalCardProps> = ({
                
                <div className="text-right flex-shrink-0">
                  <p className="font-bold text-xl text-foreground">
-                   R$ {proposal.total_amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                   R$ {proposal.total_amount.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2
+              })}
                  </p>
                  <p className="text-xs text-muted-foreground">Valor Total</p>
                </div>
              </div>
 
              <div className="flex items-center gap-3 ml-6 flex-shrink-0">
-               <StatusSelector
-                 currentStatus={proposal.status}
-                 onStatusChange={(newStatus) => onStatusChange(proposal.id, newStatus)}
-               />
-               <ProposalActions
-                 proposal={proposal}
-                 isMobile={isMobile}
-                 onView={onView}
-                 onEdit={onEdit}
-                 onEmail={onEmail}
-                 onWhatsApp={onWhatsApp}
-                 onExportPDF={onExportPDF}
-               />
+               <StatusSelector currentStatus={proposal.status} onStatusChange={newStatus => onStatusChange(proposal.id, newStatus)} />
+               <ProposalActions proposal={proposal} isMobile={isMobile} onView={onView} onEdit={onEdit} onEmail={onEmail} onWhatsApp={onWhatsApp} onExportPDF={onExportPDF} />
              </div>
-           </div>
-        )}
+           </div>}
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
-
 export default ProposalCard;
