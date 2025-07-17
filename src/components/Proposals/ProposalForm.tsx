@@ -12,7 +12,9 @@ import {
   Send, 
   Plus,
   Trash2,
-  Package
+  Package,
+  Bell,
+  Loader2
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +28,8 @@ import ProposalItemForm from '@/components/Proposals/ProposalItemForm';
 import ProposalChangeLog from '@/components/Proposals/ProposalChangeLog';
 import { ProposalPortalLink } from '@/components/Proposals/ProposalPortalLink';
 import { getStatusConfig } from '@/lib/statusConfig';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const proposalSchema = z.object({
   client_id: z.string().min(1, 'Cliente é obrigatório'),
@@ -44,6 +48,8 @@ interface ProposalFormProps {
 
 const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
   const { createProposal, updateProposal, sendProposal } = useProposals();
+  const { toast } = useToast();
+  const [isNotifying, setIsNotifying] = useState(false);
   const { items, addItem, updateItem, deleteItem } = useProposalItems(proposal?.id || null);
   const { changes, isLoading: changesLoading, logMultipleChanges } = useProposalChanges(proposal?.id || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -182,6 +188,92 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
       } finally {
         setIsSubmitting(false);
       }
+    }
+  };
+
+  const handleUpdateAndNotifyClient = async () => {
+    if (!proposal || proposal.status !== 'contested') return;
+
+    setIsNotifying(true);
+    try {
+      // First, update the proposal with current form data
+      const data = form.getValues();
+      const proposalData = {
+        ...data,
+        title: proposal.title,
+        description: proposal.description,
+        subtotal,
+        discount_amount: discountAmount,
+        tax_amount: 0,
+        total_amount: totalAmount,
+        expiry_date: data.validity_days 
+          ? new Date(Date.now() + data.validity_days * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+          : null,
+        status: 'sent' as const, // Change status to "sent"
+      };
+
+      await updateProposal(proposal.id, proposalData);
+
+      // Mark client as not having seen the update
+      await supabase
+        .from('proposal_tokens')
+        .update({ client_seen_update: false })
+        .eq('proposal_id', proposal.id)
+        .eq('purpose', 'portal');
+
+      // Get client data for notification
+      const { data: proposalWithClient } = await supabase
+        .from('proposals')
+        .select(`
+          *,
+          clients(name, email)
+        `)
+        .eq('id', proposal.id)
+        .single();
+
+      if (proposalWithClient?.clients?.email) {
+        // Get portal token
+        const { data: tokenData } = await supabase
+          .from('proposal_tokens')
+          .select('token')
+          .eq('proposal_id', proposal.id)
+          .eq('purpose', 'portal')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (tokenData) {
+          const proposalUrl = `${window.location.origin}/portal/${tokenData.token}`;
+          
+          // Call the notify-client-update edge function
+          await supabase.functions.invoke('notify-client-update', {
+            body: {
+              proposalId: proposal.id,
+              clientEmail: proposalWithClient.clients.email,
+              clientName: proposalWithClient.clients.name,
+              proposalNumber: proposalWithClient.proposal_number,
+              proposalTitle: proposalWithClient.title,
+              proposalUrl: proposalUrl,
+            },
+          });
+        }
+      }
+
+      toast({
+        title: 'Sucesso',
+        description: 'Proposta atualizada e cliente notificado!',
+      });
+
+      onClose();
+    } catch (error) {
+      console.error('Error updating and notifying:', error);
+      toast({
+        title: 'Erro',
+        description: 'Erro ao atualizar e notificar cliente',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsNotifying(false);
     }
   };
 
@@ -462,6 +554,42 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
                       <Save className="w-4 h-4 mr-2" />
                       {proposal ? 'Atualizar' : 'Salvar'} Rascunho
                     </Button>
+
+                    {/* Show "Update and Notify Client" button only for contested proposals */}
+                    {proposal && proposal.status === 'contested' && (
+                      <Button
+                        type="button"
+                        onClick={handleUpdateAndNotifyClient}
+                        disabled={isNotifying || isSubmitting}
+                        className="w-full"
+                        variant="default"
+                      >
+                        {isNotifying ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Notificando...
+                          </>
+                        ) : (
+                          <>
+                            <Bell className="w-4 h-4 mr-2" />
+                            Atualizar e Notificar Cliente
+                          </>
+                        )}
+                      </Button>
+                    )}
+
+                    {proposal && proposal.status === 'draft' && (
+                      <Button
+                        type="button"
+                        onClick={handleSend}
+                        disabled={isSubmitting}
+                        className="w-full"
+                        variant="outline"
+                      >
+                        <Send className="w-4 h-4 mr-2" />
+                        Enviar Proposta
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>

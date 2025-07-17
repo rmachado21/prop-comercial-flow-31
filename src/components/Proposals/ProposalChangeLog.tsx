@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Edit, Plus, Trash2, MessageCircle } from 'lucide-react';
 import { ProposalChange } from '@/hooks/useProposalChanges';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 interface ProposalChangeLogProps {
@@ -176,10 +176,11 @@ const ProposalChangeLog: React.FC<ProposalChangeLogProps> = ({
                   )}
                   
                   <p className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(change.created_at), { 
+                    {format(new Date(change.created_at), 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })} 
+                    ({formatDistanceToNow(new Date(change.created_at), { 
                       addSuffix: true, 
                       locale: ptBR 
-                    })}
+                    })})
                   </p>
                 </div>
               </div>
