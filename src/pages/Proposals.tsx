@@ -15,6 +15,7 @@ import ProposalFilters from '@/components/Proposals/ProposalFilters';
 import ProposalCard from '@/components/Proposals/ProposalCard';
 import ProposalEmptyState from '@/components/Proposals/ProposalEmptyState';
 import ProposalLoadingState from '@/components/Proposals/ProposalLoadingState';
+import ProposalSyncIndicator from '@/components/Proposals/ProposalSyncIndicator';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -22,7 +23,15 @@ const Proposals: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
-  const { proposals, isLoading, updateProposalStatus } = useProposals();
+  const { 
+    proposals, 
+    isLoading, 
+    isRefreshing, 
+    isConnected, 
+    refreshProposals, 
+    reconnect, 
+    updateProposalStatus 
+  } = useProposals();
   const { exportToPDF } = useProposalExport();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -140,10 +149,18 @@ const Proposals: React.FC = () => {
               Gerencie suas propostas comerciais
             </p>
           </div>
-          <Button onClick={handleNewProposal} className="bg-gradient-primary hover:bg-primary-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Proposta
-          </Button>
+          <div className="flex items-center gap-4">
+            <ProposalSyncIndicator
+              isConnected={isConnected}
+              isRefreshing={isRefreshing}
+              onRefresh={refreshProposals}
+              onReconnect={reconnect}
+            />
+            <Button onClick={handleNewProposal} className="bg-gradient-primary hover:bg-primary-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Nova Proposta
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}

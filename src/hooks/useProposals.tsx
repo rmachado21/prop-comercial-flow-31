@@ -1,8 +1,9 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useRealtimeProposals } from '@/hooks/useRealtimeProposals';
 
 export interface Proposal {
   id: string;
@@ -57,17 +58,55 @@ export const useProposals = () => {
   const { toast } = useToast();
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // Optimistic update handlers for realtime
+  const handleRealtimeInsert = useCallback((newProposal: Proposal) => {
+    setProposals(prev => {
+      // Check if proposal already exists to avoid duplicates
+      const exists = prev.some(p => p.id === newProposal.id);
+      if (exists) return prev;
+      
+      // Insert at beginning (newest first)
+      return [newProposal, ...prev];
+    });
+  }, []);
+
+  const handleRealtimeUpdate = useCallback((updatedProposal: Proposal) => {
+    setProposals(prev =>
+      prev.map(proposal =>
+        proposal.id === updatedProposal.id ? updatedProposal : proposal
+      )
+    );
+  }, []);
+
+  const handleRealtimeDelete = useCallback((proposalId: string) => {
+    setProposals(prev => prev.filter(proposal => proposal.id !== proposalId));
+  }, []);
+
+  // Setup realtime subscription
+  const { reconnect, isConnected } = useRealtimeProposals({
+    onInsert: handleRealtimeInsert,
+    onUpdate: handleRealtimeUpdate,
+    onDelete: handleRealtimeDelete,
+  });
+
+  // Initial fetch on mount
   useEffect(() => {
     if (user) {
       fetchProposals();
     }
   }, [user]);
 
-  const fetchProposals = async () => {
+  const fetchProposals = async (silent = false) => {
     if (!user) return;
     
-    setIsLoading(true);
+    if (!silent) {
+      setIsLoading(true);
+    } else {
+      setIsRefreshing(true);
+    }
+    
     try {
       const { data, error } = await supabase
         .from('proposals')
@@ -82,14 +121,25 @@ export const useProposals = () => {
       setProposals((data as Proposal[]) || []);
     } catch (error) {
       console.error('Error fetching proposals:', error);
-      toast({
-        title: 'Erro',
-        description: 'Erro ao carregar propostas',
-        variant: 'destructive',
-      });
+      if (!silent) {
+        toast({
+          title: 'Erro',
+          description: 'Erro ao carregar propostas',
+          variant: 'destructive',
+        });
+      }
     } finally {
-      setIsLoading(false);
+      if (!silent) {
+        setIsLoading(false);
+      } else {
+        setIsRefreshing(false);
+      }
     }
+  };
+
+  // Manual refresh method
+  const refreshProposals = () => {
+    fetchProposals(true);
   };
 
   const createProposal = async (proposalData: Partial<Proposal>) => {
@@ -130,7 +180,7 @@ export const useProposals = () => {
 
       if (error) throw error;
 
-      await fetchProposals();
+      // Don't fetch proposals here - realtime will handle the update
       toast({
         title: 'Sucesso',
         description: 'Proposta criada com sucesso',
@@ -233,7 +283,7 @@ export const useProposals = () => {
         }
       }
 
-      await fetchProposals();
+      // Don't fetch proposals here - realtime will handle the update
       toast({
         title: 'Sucesso',
         description: 'Proposta atualizada com sucesso',
@@ -260,7 +310,7 @@ export const useProposals = () => {
 
       if (error) throw error;
 
-      await fetchProposals();
+      // Don't fetch proposals here - realtime will handle the update
       toast({
         title: 'Sucesso',
         description: 'Proposta excluída com sucesso',
@@ -291,7 +341,7 @@ export const useProposals = () => {
 
       if (error) throw error;
 
-      await fetchProposals();
+      // Don't fetch proposals here - realtime will handle the update
       toast({
         title: 'Sucesso',
         description: 'Proposta enviada com sucesso',
@@ -330,22 +380,8 @@ export const useProposals = () => {
 
       if (error) throw error;
 
-      await fetchProposals();
-      
-      const statusLabels = {
-        draft: 'Rascunho',
-        sent: 'Enviada',
-        approved: 'Aprovada',
-        rejected: 'Rejeitada',
-        expired: 'Expirada',
-        nfe_issued: 'NFe Emitida',
-        contested: 'Contestada'
-      };
-
-      toast({
-        title: 'Sucesso',
-        description: `Status alterado para: ${statusLabels[newStatus]}`,
-      });
+      // Don't fetch proposals here - realtime will handle the update and show toast
+      // Real-time subscription will handle the toast notification
     } catch (error) {
       console.error('Error updating proposal status:', error);
       toast({
@@ -359,7 +395,11 @@ export const useProposals = () => {
   return {
     proposals,
     isLoading,
+    isRefreshing,
+    isConnected,
     fetchProposals,
+    refreshProposals,
+    reconnect,
     createProposal,
     updateProposal,
     deleteProposal,
