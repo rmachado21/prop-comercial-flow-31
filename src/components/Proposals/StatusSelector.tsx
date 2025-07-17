@@ -50,6 +50,12 @@ const StatusSelector: React.FC<StatusSelectorProps> = ({
       bgClass: 'bg-[hsl(var(--status-nfe-issued))]',
       textClass: 'text-[hsl(var(--status-nfe-issued-foreground))]'
     },
+    { 
+      value: 'contested', 
+      label: 'Contestada', 
+      bgClass: 'bg-[hsl(var(--status-contested))]',
+      textClass: 'text-[hsl(var(--status-contested-foreground))]'
+    },
   ] as const;
 
   const currentOption = statusOptions.find(option => option.value === currentStatus) || statusOptions[0];

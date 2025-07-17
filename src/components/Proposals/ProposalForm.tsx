@@ -69,7 +69,6 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
         client_id: proposal.client_id || '',
         validity_days: proposal.validity_days || 30,
         discount_percentage: proposal.discount_percentage || 0,
-        
         terms_and_conditions: proposal.terms_and_conditions || '',
       });
     }
@@ -77,7 +76,7 @@ const ProposalForm: React.FC<ProposalFormProps> = ({ proposal, onClose }) => {
 
   // Use items from database if proposal exists, otherwise use temporary items
   const currentItems = proposal ? items : tempItems;
-  const subtotal = currentItems.reduce((sum, item) => sum + item.total_price, 0);
+  const subtotal = currentItems.reduce((sum, item) => sum + (item.total_price || 0), 0);
   const discountAmount = (subtotal * (form.watch('discount_percentage') || 0)) / 100;
   const totalAmount = subtotal - discountAmount;
 
