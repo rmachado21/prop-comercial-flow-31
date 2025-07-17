@@ -121,9 +121,9 @@ export const ProposalPortalLink: React.FC<ProposalPortalLinkProps> = ({ proposal
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <Label>Link de Compartilhamento</Label>
+          <Label>Link Permanente do Portal</Label>
           <p className="text-sm text-muted-foreground mb-2">
-            Compartilhe este link para que o cliente possa visualizar, aprovar ou adicionar observações à proposta.
+            Este link é único e permanente para esta proposta. Pode ser acessado a qualquer momento, independentemente do status da proposta.
           </p>
           <div className="flex gap-2">
             <Input
@@ -153,21 +153,31 @@ export const ProposalPortalLink: React.FC<ProposalPortalLinkProps> = ({ proposal
               size="sm"
               onClick={generatePortalLink}
               disabled={isGenerating}
+              title="Recarregar link"
             >
               <RefreshCw className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
             </Button>
           </div>
         </div>
         
-        <div className="text-sm text-muted-foreground">
-          <p><strong>O que o cliente pode fazer no portal:</strong></p>
-          <ul className="list-disc list-inside mt-1 space-y-1">
-            <li>Visualizar todos os detalhes da proposta</li>
-            <li>Aprovar ou rejeitar a proposta</li>
-            <li>Adicionar observações e comentários</li>
-            <li>Visualizar histórico de mudanças</li>
-            <li>Imprimir a proposta em PDF</li>
-          </ul>
+        <div className="text-sm text-muted-foreground space-y-2">
+          <div className="p-2 bg-blue-50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
+            <p className="text-blue-700 dark:text-blue-300 font-medium">ℹ️ Link Permanente</p>
+            <p className="text-blue-600 dark:text-blue-400 text-xs mt-1">
+              Este link nunca expira e pode ser salvo e acessado a qualquer momento pelo cliente.
+            </p>
+          </div>
+          
+          <div>
+            <p><strong>O que o cliente pode fazer no portal:</strong></p>
+            <ul className="list-disc list-inside mt-1 space-y-1">
+              <li>Visualizar todos os detalhes da proposta</li>
+              <li>Aprovar ou rejeitar a proposta</li>
+              <li>Adicionar observações e comentários</li>
+              <li>Visualizar histórico de mudanças</li>
+              <li>Imprimir a proposta em PDF</li>
+            </ul>
+          </div>
         </div>
       </CardContent>
     </Card>

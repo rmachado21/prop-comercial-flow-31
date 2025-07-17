@@ -78,8 +78,20 @@ export const useProposalPortal = () => {
         return { isValid: false, error: 'Token não encontrado' };
       }
 
+      // Auto-renew expired tokens to keep links permanent
       if (new Date(tokenData.expires_at) < new Date()) {
-        return { isValid: false, error: 'O link expirou' };
+        const { error: renewError } = await supabase
+          .from('proposal_tokens')
+          .update({
+            expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+            updated_at: new Date().toISOString()
+          })
+          .eq('token', token);
+
+        if (renewError) {
+          console.error('Error renewing token:', renewError);
+          // Continue anyway - token might still work for read access
+        }
       }
 
       // Get proposal details with client info
