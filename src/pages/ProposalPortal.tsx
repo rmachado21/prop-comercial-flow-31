@@ -363,6 +363,58 @@ export default function ProposalPortal() {
                     </div>
                   </>
                 )}
+
+                {/* Approve Section - moved from Actions tab */}
+                <Separator />
+                
+                {state === 'approved' ? (
+                  <div className="text-center space-y-4 p-6 bg-success/10 rounded-lg border border-success/20">
+                    <CheckCircle className="w-16 h-16 mx-auto text-success" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-success">Proposta Aprovada!</h3>
+                      <p className="text-muted-foreground">
+                        Esta proposta foi aprovada. A empresa entrará em contato em breve.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4 p-6 bg-primary/10 rounded-lg border border-primary/20">
+                    <h3 className="text-lg font-semibold">Ações Disponíveis</h3>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="actionClientName">Seu Nome (opcional)</Label>
+                      <Input
+                        id="actionClientName"
+                        value={clientName}
+                        onChange={(e) => setClientName(e.target.value)}
+                        placeholder="Digite seu nome para confirmação"
+                      />
+                    </div>
+                    
+                    <Button 
+                      onClick={handleApprove}
+                      disabled={isSubmitting}
+                      className="w-full"
+                      size="lg"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Processando...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Aprovar Proposta
+                        </>
+                      )}
+                    </Button>
+                    
+                    <p className="text-xs text-muted-foreground text-center">
+                      Ao aprovar, você confirma que aceita todos os termos e condições.
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
