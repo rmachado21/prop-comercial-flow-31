@@ -18,7 +18,7 @@ const StatusSelector: React.FC<StatusSelectorProps> = ({
       value: 'draft', 
       label: 'Rascunho', 
       bgClass: 'bg-[hsl(var(--status-draft))]',
-      textClass: 'text-[hsl(var(--status-draft-foreground))]'
+      textClass: 'text-white'
     },
     { 
       value: 'sent', 
@@ -30,25 +30,25 @@ const StatusSelector: React.FC<StatusSelectorProps> = ({
       value: 'approved', 
       label: 'Aprovada', 
       bgClass: 'bg-[hsl(var(--status-approved))]',
-      textClass: 'text-[hsl(var(--status-approved-foreground))]'
+      textClass: 'text-white'
     },
     { 
       value: 'rejected', 
       label: 'Cancelada', 
       bgClass: 'bg-[hsl(var(--status-rejected))]',
-      textClass: 'text-[hsl(var(--status-rejected-foreground))]'
+      textClass: 'text-white'
     },
     { 
       value: 'expired', 
       label: 'Expirada', 
       bgClass: 'bg-[hsl(var(--status-expired))]',
-      textClass: 'text-[hsl(var(--status-expired-foreground))]'
+      textClass: 'text-white'
     },
     { 
       value: 'nfe_issued', 
       label: 'NFe Emitida', 
       bgClass: 'bg-[hsl(var(--status-nfe-issued))]',
-      textClass: 'text-[hsl(var(--status-nfe-issued-foreground))]'
+      textClass: 'text-white'
     },
     { 
       value: 'contested', 
