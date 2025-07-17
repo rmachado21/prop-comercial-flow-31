@@ -13,6 +13,7 @@ interface SendProposalEmailRequest {
   recipient: string;
   subject?: string;
   message?: string;
+  senderName?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -62,12 +63,13 @@ const handler = async (req: Request): Promise<Response> => {
       supabaseServiceKey
     );
 
-    const { proposalId, recipient, subject, message }: SendProposalEmailRequest = await req.json();
+    const { proposalId, recipient, subject, message, senderName }: SendProposalEmailRequest = await req.json();
 
     console.log('=== DADOS RECEBIDOS ===');
     console.log('Proposal ID:', proposalId);
     console.log('Recipient:', recipient);
     console.log('Subject:', subject);
+    console.log('Sender Name:', senderName);
 
     // Fetch proposal details with client information
     console.log('=== BUSCANDO PROPOSTA ===');
@@ -121,9 +123,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Empresa encontrada:', company?.name || 'Não encontrada');
 
-    // Prepare email content with company name in subject
-    const companyName = company?.name || 'Proposta';
-    const defaultSubject = subject || `Proposta ${companyName} ${proposal.proposal_number}`;
+    // Prepare email content with sender name
+    const finalSenderName = senderName || company?.name || 'Propostas Online';
+    const defaultSubject = subject || `Proposta Comercial - ${proposal.proposal_number}`;
     const defaultMessage = `
 Prezado(a) ${proposal.client?.name || 'Cliente'},
 
@@ -172,7 +174,7 @@ Equipe Comercial
 
     console.log('=== ENVIANDO EMAIL ===');
     const emailResponse = await resend.emails.send({
-      from: 'Propostas Online <noreply@propostaonline.app.br>',
+      from: `${finalSenderName} <noreply@propostaonline.app.br>`,
       to: [recipient],
       subject: defaultSubject,
       html: `

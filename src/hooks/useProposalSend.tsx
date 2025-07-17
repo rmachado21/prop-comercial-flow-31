@@ -24,7 +24,8 @@ export const useProposalSend = () => {
     proposal: Proposal,
     recipient: string,
     subject?: string,
-    message?: string
+    message?: string,
+    senderName?: string
   ) => {
     setIsSending(true);
     try {
@@ -34,6 +35,7 @@ export const useProposalSend = () => {
           recipient,
           subject,
           message,
+          senderName,
         },
       });
 
