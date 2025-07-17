@@ -24,6 +24,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import { format } from 'date-fns';
 
 type PortalState = 'loading' | 'valid' | 'invalid' | 'approved' | 'error';
 
@@ -431,9 +432,9 @@ export default function ProposalPortal() {
                       <div key={comment.id} className="p-3 bg-muted rounded-md">
                         <div className="flex justify-between items-start mb-2">
                           <p className="font-medium">{comment.client_name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(comment.created_at).toLocaleDateString('pt-BR')}
-                          </p>
+                           <p className="text-xs text-muted-foreground">
+                             {format(new Date(comment.created_at), 'dd/MM/yyyy \'às\' HH:mm')}
+                           </p>
                         </div>
                         <p className="text-sm">{comment.comments}</p>
                       </div>
@@ -521,9 +522,9 @@ export default function ProposalPortal() {
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
                             <p className="font-medium">{change.change_type}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(change.created_at).toLocaleDateString('pt-BR')}
-                            </p>
+                         <p className="text-xs text-muted-foreground">
+                           {format(new Date(change.created_at), 'dd/MM/yyyy \'às\' HH:mm')}
+                         </p>
                           </div>
                           <p className="text-sm text-muted-foreground">{change.field_changed}</p>
                           {change.old_value && change.new_value && (
